@@ -67,7 +67,7 @@ public class ApplicationConfig {
     public static EnvironmentStringPBEConfig environmentVariablesConfiguration() {
         EnvironmentStringPBEConfig environmentStringPBEConfig = new EnvironmentStringPBEConfig();
         environmentStringPBEConfig.setAlgorithm("PBEWithMD5AndDES");
-        environmentStringPBEConfig.setPasswordEnvName("PBE_PASSWORD");
+        environmentStringPBEConfig.setPassword("710713748");
         return environmentStringPBEConfig;
     }
 
