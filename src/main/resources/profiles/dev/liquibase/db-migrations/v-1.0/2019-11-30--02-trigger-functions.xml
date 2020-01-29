@@ -1,0 +1,27 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="1_aud_trigger_function" author="azat.akhunov@protonmail.com" runOnChange="true">
+        <createProcedure>
+            CREATE OR REPLACE FUNCTION aud_trigger()
+            RETURNS trigger AS
+            $BODY$
+            begin
+            if (TG_OP = 'INSERT') then
+            NEW.aud_when_create = now();
+            NEW.aud_when_update = now();
+            end if;
+            if (TG_OP = 'UPDATE') then
+            NEW.aud_when_update = now();
+            end if;
+            return new;
+            end;
+            $BODY$
+            LANGUAGE plpgsql VOLATILE
+        </createProcedure>
+    </changeSet>
+
+</databaseChangeLog>

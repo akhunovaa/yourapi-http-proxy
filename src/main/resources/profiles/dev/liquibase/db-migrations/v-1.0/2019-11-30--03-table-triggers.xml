@@ -1,0 +1,17 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="1_user_api_data_trigger" failOnError="true" author="azat.akhunov@protonmail.com" runOnChange="true">
+        <sql>
+            DROP TRIGGER IF EXISTS user_api_data_aud_trigger ON user_api_data;
+            CREATE TRIGGER user_api_data_aud_trigger BEFORE INSERT OR UPDATE ON user_api_data FOR EACH ROW EXECUTE PROCEDURE aud_trigger();
+        </sql>
+        <rollback>
+            DROP TRIGGER user_api_data_aud_trigger ON user_api_data;
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

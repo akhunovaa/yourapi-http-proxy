@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "fullname" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "fullname" . }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.appVersion }}"
+        ports:
+        - name: http
+          containerPort: {{ .Values.service.port }}
+        env:
+          - name: PBE_PASSWORD
+            value: {{ .Values.application.pbePassword }}
+          - name: TOMCAT_PORT
+            value: {{ .Values.application.tomcat.internalPort }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
