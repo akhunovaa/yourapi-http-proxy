@@ -42,8 +42,8 @@ securityContext: {}
 
 service:
   type: LoadBalancer
-  port: 7100
-  targetPort: 7100
+  port: 7110
+  targetPort: 7110
   external:
       ip: 10.0.0.6
 
