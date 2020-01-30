@@ -9,9 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.yourapi.dto.ResponsePingDto;
 import ru.yourapi.model.HttpRequest;
-import ru.yourapi.model.Response;
 import ru.yourapi.service.HttpService;
 import ru.yourapi.util.ClientInfoUtil;
 
