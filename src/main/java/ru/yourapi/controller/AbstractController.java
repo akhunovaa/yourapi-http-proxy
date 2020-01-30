@@ -1,5 +1,8 @@
 package ru.yourapi.controller;
 
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ByteArrayEntity;
 import ru.yourapi.model.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +52,7 @@ abstract class AbstractController {
         }
     }
 
+    @SuppressWarnings("deprecation")
     protected void returnJsonString(String str, HttpServletResponse httpServletResponse) {
         try {
             httpServletResponse.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
@@ -57,6 +61,29 @@ abstract class AbstractController {
             httpServletResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             LOGGER.error("Произошла ошибка при попытке записи в HttpServletResponse", e);
         }
+    }
 
+    @SuppressWarnings("deprecation")
+    HttpGet configuredHttpGet(String url, String cookies) {
+        HttpGet httpGet = new HttpGet(url);
+        httpGet.setHeader("Accept", MediaType.APPLICATION_JSON_UTF8_VALUE);
+        httpGet.setHeader("Content-Type", MediaType.APPLICATION_JSON_UTF8_VALUE);
+        if (null != cookies){
+            httpGet.setHeader("Cookie", cookies);
+        }
+        return httpGet;
+    }
+
+    @SuppressWarnings("deprecation")
+    HttpPost configuredHttpPost(byte[] body, String url, String cookies) {
+        ByteArrayEntity bae = new ByteArrayEntity(body);
+        HttpPost httpPost = new HttpPost(url);
+        httpPost.setHeader("Accept", MediaType.APPLICATION_JSON_UTF8_VALUE);
+        httpPost.setHeader("Content-Type", MediaType.APPLICATION_JSON_UTF8_VALUE);
+        if (null != cookies){
+            httpPost.setHeader("Cookie", cookies);
+        }
+        httpPost.setEntity(bae);
+        return httpPost;
     }
 }
