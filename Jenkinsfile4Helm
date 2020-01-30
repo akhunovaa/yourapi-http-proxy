@@ -39,26 +39,26 @@ pipeline {
                 sh 'mvn test'
             }
         }
-
-        stage('SonarQube') {
-            environment {
-                scannerHome = tool 'botmasterzzz-sonar-scanner'
-            }
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh "${scannerHome}/bin/sonar-scanner"
-                }
-                script {
-                    timeout(time: 1, unit: 'HOURS') {
-                        def qg = waitForQualityGate()
-                        if (qg.status != 'OK') {
-                            echo "Status: ${qg.status}"
-                            error "Pipeline aborted due to quality gate failure: ${qg.status}"
-                        }
-                    }
-                }
-            }
-        }
+//
+//        stage('SonarQube') {
+//            environment {
+//                scannerHome = tool 'botmasterzzz-sonar-scanner'
+//            }
+//            steps {
+//                withSonarQubeEnv('SonarQube') {
+//                    sh "${scannerHome}/bin/sonar-scanner"
+//                }
+//                script {
+//                    timeout(time: 1, unit: 'HOURS') {
+//                        def qg = waitForQualityGate()
+//                        if (qg.status != 'OK') {
+//                            echo "Status: ${qg.status}"
+//                            error "Pipeline aborted due to quality gate failure: ${qg.status}"
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
 
         stage('Package') {
