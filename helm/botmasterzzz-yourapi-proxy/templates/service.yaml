@@ -3,6 +3,7 @@ kind: Service
 metadata:
   name: {{ include "fullname" . }}
 spec:
+  ipFamily: IPv6
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
