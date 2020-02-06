@@ -7,7 +7,7 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      name: http
+      protocol: TCP
       targetPort: {{ .Values.service.targetPort }}
   selector:
     app: {{ include "fullname" . }}
