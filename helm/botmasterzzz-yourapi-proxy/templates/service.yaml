@@ -9,7 +9,5 @@ spec:
     - port: {{ .Values.service.port }}
       name: http
       targetPort: {{ .Values.service.targetPort }}
-  externalIPs:
-    - {{ .Values.service.external.ip }}
   selector:
     app: {{ include "fullname" . }}
