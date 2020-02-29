@@ -30,6 +30,8 @@ public class ProxyController extends AbstractController {
         String clientBrowser = ClientInfoUtil.getClientBrowser(httpServletRequest);
         String clientOs = ClientInfoUtil.getClientOS(httpServletRequest);
         String clientIp = ClientInfoUtil.getClientIpAddr(httpServletRequest);
+        String projectName = httpServletRequest.getHeader("X-Api-Identifier");
+        LOGGER.info("Request GET to project {}:", clientIp, clientOs, clientBrowser, projectName);
         LOGGER.info("Request GET from IP: {} OS: {} User-Agent:", clientIp, clientOs, clientBrowser);
         HttpGet httpGet = configuredHttpGet(url, cookies);
         LOGGER.info("Send sync GET request to the URL: {} ", url);
