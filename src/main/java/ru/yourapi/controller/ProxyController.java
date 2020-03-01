@@ -26,7 +26,7 @@ public class ProxyController extends AbstractController {
     private HttpService httpService;
 
     @RequestMapping(method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
-    public void proxyServiceSync(@RequestParam(value = "cookies", required = false) String cookies, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    public void proxyServiceSyncGet(@RequestParam(value = "cookies", required = false) String cookies, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         String clientBrowser = ClientInfoUtil.getClientBrowser(httpServletRequest);
         String clientOs = ClientInfoUtil.getClientOS(httpServletRequest);
         String clientIp = ClientInfoUtil.getClientIpAddr(httpServletRequest);
@@ -40,7 +40,23 @@ public class ProxyController extends AbstractController {
         //HttpGet httpGet = configuredHttpGet(url, cookies);
         //LOGGER.info("Send sync GET request to the URL: {} ", url);
         //byte[] response = httpService.sendHttpRequest(httpGet);
-        String responseHeadersName = "X-Api-Identifier: " + projectName + " X-Real-IP: " + xRealIp + " X-Forwarded-For: " + xForwardedFor + " Host: " + host + " X-Forwarded-Proto:" + xForwardedProto;
+        String responseHeadersName = "X-Api-Identifier: " + projectName + " X-Real-IP: " + xRealIp + " X-Forwarded-For: " + xForwardedFor + " Host: " + host + " X-Forwarded-Proto: " + xForwardedProto;
+        returnJsonString(responseHeadersName, httpServletResponse);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
+    public void proxyServiceSyncPost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+        String clientBrowser = ClientInfoUtil.getClientBrowser(httpServletRequest);
+        String clientOs = ClientInfoUtil.getClientOS(httpServletRequest);
+        String clientIp = ClientInfoUtil.getClientIpAddr(httpServletRequest);
+        String projectName = httpServletRequest.getHeader("X-Api-Identifier");
+        String xRealIp = httpServletRequest.getHeader("X-Real-IP");
+        String xForwardedFor = httpServletRequest.getHeader("X-Forwarded-For");
+        String host = httpServletRequest.getHeader("Host");
+        String xForwardedProto = httpServletRequest.getHeader("X-Forwarded-Proto");
+        LOGGER.info("Request POST to project {}:", clientIp, clientOs, clientBrowser, projectName);
+        LOGGER.info("Request POST from IP: {} OS: {} User-Agent:", clientIp, clientOs, clientBrowser);
+        String responseHeadersName = "X-Api-Identifier: " + projectName + " X-Real-IP: " + xRealIp + " X-Forwarded-For: " + xForwardedFor + " Host: " + host + " X-Forwarded-Proto: " + xForwardedProto;
         returnJsonString(responseHeadersName, httpServletResponse);
     }
 
