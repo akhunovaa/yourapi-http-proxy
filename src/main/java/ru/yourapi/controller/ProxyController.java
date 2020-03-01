@@ -31,12 +31,17 @@ public class ProxyController extends AbstractController {
         String clientOs = ClientInfoUtil.getClientOS(httpServletRequest);
         String clientIp = ClientInfoUtil.getClientIpAddr(httpServletRequest);
         String projectName = httpServletRequest.getHeader("X-Api-Identifier");
+        String xRealIp = httpServletRequest.getHeader("X-Real-IP");
+        String xForwardedFor = httpServletRequest.getHeader("X-Forwarded-For");
+        String host = httpServletRequest.getHeader("Host");
+        String xForwardedProto = httpServletRequest.getHeader("X-Forwarded-Proto");
         LOGGER.info("Request GET to project {}:", clientIp, clientOs, clientBrowser, projectName);
         LOGGER.info("Request GET from IP: {} OS: {} User-Agent:", clientIp, clientOs, clientBrowser);
         //HttpGet httpGet = configuredHttpGet(url, cookies);
         //LOGGER.info("Send sync GET request to the URL: {} ", url);
         //byte[] response = httpService.sendHttpRequest(httpGet);
-        returnJsonString(projectName, httpServletResponse);
+        String responseHeadersName = "X-Api-Identifier: " + projectName + " X-Real-IP: " + xRealIp + " X-Forwarded-For: " + xForwardedFor + " Host: " + host + " X-Forwarded-Proto:" + xForwardedProto;
+        returnJsonString(responseHeadersName, httpServletResponse);
     }
 
     @RequestMapping(value = "/async", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
