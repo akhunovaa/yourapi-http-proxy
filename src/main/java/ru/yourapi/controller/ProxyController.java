@@ -42,7 +42,8 @@ public class ProxyController extends AbstractController {
         //LOGGER.info("Send sync GET request to the URL: {} ", url);
         //byte[] response = httpService.sendHttpRequest(httpGet);
         String responseHeadersName = "X-Api-Identifier: " + projectName + " X-Real-IP: " + xRealIp + " X-Forwarded-For: " + xForwardedFor + " Host: " + host + " X-Forwarded-Proto: " + xForwardedProto;
-        return getNotFoundResponse(responseHeadersName);
+        httpServletResponse.setStatus(404);
+        return getResponseDto(responseHeadersName);
     }
 
     @RequestMapping(method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})

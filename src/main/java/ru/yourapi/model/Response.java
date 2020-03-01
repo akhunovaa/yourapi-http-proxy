@@ -1,18 +1,20 @@
 package ru.yourapi.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import ru.yourapi.exception.CustomException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Response {
 
-    protected static final String TEXTAREA_TMP = "<textarea>{success:%b,message:'%s'}</textarea>";
+    private static final String TEXTAREA_TMP = "<textarea>{success:%b,message:'%s'}</textarea>";
 
     @JsonProperty
-    final Boolean success;
+    private final Boolean success;
     @JsonProperty
-    final String message;
+    private final String message;
     @JsonProperty
-    final Object response;
+    private final Object response;
 
     public Response() {
         this(true, null, null);

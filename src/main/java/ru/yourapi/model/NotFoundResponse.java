@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import ru.yourapi.exception.CustomException;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@ResponseStatus(HttpStatus.NOT_FOUND)
 public class NotFoundResponse extends Response {
 
     private static final String TEXTAREA_TMP = "<textarea>{success:%b,message:'%s'}</textarea>";
