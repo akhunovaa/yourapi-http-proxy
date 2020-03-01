@@ -77,7 +77,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         //@formatter:off
         http    .headers()
-                .addHeaderWriter(new StaticHeadersWriter("Server","YourAPI-0.1(ALPHA)"))
+                .addHeaderWriter(new StaticHeadersWriter("Server","YourAPI-0.1"))
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
