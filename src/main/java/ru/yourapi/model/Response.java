@@ -8,11 +8,11 @@ public class Response {
     protected static final String TEXTAREA_TMP = "<textarea>{success:%b,message:'%s'}</textarea>";
 
     @JsonProperty
-    private final Boolean success;
+    final Boolean success;
     @JsonProperty
-    private final String message;
+    final String message;
     @JsonProperty
-    private final Object response;
+    final Object response;
 
     public Response() {
         this(true, null, null);

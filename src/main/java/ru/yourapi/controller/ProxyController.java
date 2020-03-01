@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yourapi.model.HttpRequest;
+import ru.yourapi.model.Response;
 import ru.yourapi.service.HttpService;
 import ru.yourapi.util.ClientInfoUtil;
 
@@ -26,7 +27,7 @@ public class ProxyController extends AbstractController {
     private HttpService httpService;
 
     @RequestMapping(method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
-    public void proxyServiceSyncGet(@RequestParam(value = "cookies", required = false) String cookies, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    public Response proxyServiceSyncGet(@RequestParam(value = "cookies", required = false) String cookies, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         String clientBrowser = ClientInfoUtil.getClientBrowser(httpServletRequest);
         String clientOs = ClientInfoUtil.getClientOS(httpServletRequest);
         String clientIp = ClientInfoUtil.getClientIpAddr(httpServletRequest);
@@ -41,11 +42,11 @@ public class ProxyController extends AbstractController {
         //LOGGER.info("Send sync GET request to the URL: {} ", url);
         //byte[] response = httpService.sendHttpRequest(httpGet);
         String responseHeadersName = "X-Api-Identifier: " + projectName + " X-Real-IP: " + xRealIp + " X-Forwarded-For: " + xForwardedFor + " Host: " + host + " X-Forwarded-Proto: " + xForwardedProto;
-        returnJsonString(responseHeadersName, httpServletResponse);
+        return getNotFoundResponse(responseHeadersName);
     }
 
     @RequestMapping(method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
-    public void proxyServiceSyncPost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    public Response proxyServiceSyncPost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         String clientBrowser = ClientInfoUtil.getClientBrowser(httpServletRequest);
         String clientOs = ClientInfoUtil.getClientOS(httpServletRequest);
         String clientIp = ClientInfoUtil.getClientIpAddr(httpServletRequest);
@@ -57,7 +58,7 @@ public class ProxyController extends AbstractController {
         LOGGER.info("Request POST to project {}:", clientIp, clientOs, clientBrowser, projectName);
         LOGGER.info("Request POST from IP: {} OS: {} User-Agent:", clientIp, clientOs, clientBrowser);
         String responseHeadersName = "X-Api-Identifier: " + projectName + " X-Real-IP: " + xRealIp + " X-Forwarded-For: " + xForwardedFor + " Host: " + host + " X-Forwarded-Proto: " + xForwardedProto;
-        returnJsonString(responseHeadersName, httpServletResponse);
+        return getResponseDto(responseHeadersName);
     }
 
     @RequestMapping(value = "/async", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
