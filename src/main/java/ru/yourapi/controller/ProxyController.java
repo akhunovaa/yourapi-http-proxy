@@ -41,7 +41,6 @@ public class ProxyController extends AbstractController {
         //LOGGER.info("Send sync GET request to the URL: {} ", url);
         //byte[] response = httpService.sendHttpRequest(httpGet);
         String responseHeadersName = "X-Api-Identifier: " + projectName + " X-Real-IP: " + xRealIp + " X-Forwarded-For: " + xForwardedFor + " Host: " + host + " X-Forwarded-Proto: " + xForwardedProto;
-        httpServletResponse.setHeader("Server", "YourAPI-0.1(ALPHA)");
         returnJsonString(responseHeadersName, httpServletResponse);
     }
 
@@ -58,7 +57,6 @@ public class ProxyController extends AbstractController {
         LOGGER.info("Request POST to project {}:", clientIp, clientOs, clientBrowser, projectName);
         LOGGER.info("Request POST from IP: {} OS: {} User-Agent:", clientIp, clientOs, clientBrowser);
         String responseHeadersName = "X-Api-Identifier: " + projectName + " X-Real-IP: " + xRealIp + " X-Forwarded-For: " + xForwardedFor + " Host: " + host + " X-Forwarded-Proto: " + xForwardedProto;
-        httpServletResponse.setHeader("Server", "YourAPI-0.1(ALPHA)");
         returnJsonString(responseHeadersName, httpServletResponse);
     }
 
