@@ -26,17 +26,17 @@ public class ProxyController extends AbstractController {
     private HttpService httpService;
 
     @RequestMapping(method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
-    public void proxyServiceSync(@RequestParam(value = "url")  String url, @RequestParam(value = "cookies", required = false) String cookies, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    public void proxyServiceSync(@RequestParam(value = "cookies", required = false) String cookies, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         String clientBrowser = ClientInfoUtil.getClientBrowser(httpServletRequest);
         String clientOs = ClientInfoUtil.getClientOS(httpServletRequest);
         String clientIp = ClientInfoUtil.getClientIpAddr(httpServletRequest);
         String projectName = httpServletRequest.getHeader("X-Api-Identifier");
         LOGGER.info("Request GET to project {}:", clientIp, clientOs, clientBrowser, projectName);
         LOGGER.info("Request GET from IP: {} OS: {} User-Agent:", clientIp, clientOs, clientBrowser);
-        HttpGet httpGet = configuredHttpGet(url, cookies);
-        LOGGER.info("Send sync GET request to the URL: {} ", url);
-        byte[] response = httpService.sendHttpRequest(httpGet);
-        returnJsonString(new String(response), httpServletResponse);
+        //HttpGet httpGet = configuredHttpGet(url, cookies);
+        //LOGGER.info("Send sync GET request to the URL: {} ", url);
+        //byte[] response = httpService.sendHttpRequest(httpGet);
+        returnJsonString(projectName, httpServletResponse);
     }
 
     @RequestMapping(value = "/async", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
