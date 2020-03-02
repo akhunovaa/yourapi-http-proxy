@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import ru.yourapi.exception.ApiDataNotFoundException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,6 +26,9 @@ public class GlobalExceptionHandler extends AbstractController {
         String err = String.format("{\"success\":false,\"message\":\"%s\",\"timestamp\":%s}", ex.getLocalizedMessage(), new Date().getTime());
 
         response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        if (ex instanceof ApiDataNotFoundException){
+            response.setStatus(404);
+        }
         try {
             response.getWriter().print(err);
         } catch (IOException ex1) {

@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.HandlerMapping;
+import ru.yourapi.dto.ApiDataDto;
 import ru.yourapi.model.HttpRequest;
 import ru.yourapi.model.Response;
+import ru.yourapi.service.ApiDataService;
 import ru.yourapi.service.HttpService;
 import ru.yourapi.util.ClientInfoUtil;
 
@@ -26,6 +28,9 @@ public class ProxyController extends AbstractController {
 
     @Autowired
     private HttpService httpService;
+
+    @Autowired
+    private ApiDataService apiDataService;
 
     @RequestMapping(value = "/**", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
     public Response proxyServiceSyncGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
@@ -43,8 +48,10 @@ public class ProxyController extends AbstractController {
         //LOGGER.info("Send sync GET request to the URL: {} ", url);
         //byte[] response = httpService.sendHttpRequest(httpGet);
         String restOfTheUrl = (String) httpServletRequest.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+        Long apiDataId = Long.valueOf(projectName.split("-")[0]);
+        ApiDataDto apiDataDto = apiDataService.getApiData(apiDataId);
         String responseHeadersName = "Path: " + restOfTheUrl + " X-Api-Identifier: " + projectName + " X-Real-IP: " + xRealIp + " X-Forwarded-For: " + xForwardedFor + " Host: " + host + " X-Forwarded-Proto: " + xForwardedProto;
-        return getResponseDto(responseHeadersName);
+        return getResponseDto(apiDataDto);
     }
 
     @RequestMapping(value = "/**", method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
@@ -60,8 +67,10 @@ public class ProxyController extends AbstractController {
         LOGGER.info("Request POST to project {}:", clientIp, clientOs, clientBrowser, projectName);
         LOGGER.info("Request POST from IP: {} OS: {} User-Agent:", clientIp, clientOs, clientBrowser);
         String restOfTheUrl = (String) httpServletRequest.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+        Long apiDataId = Long.valueOf(projectName.split("-")[0]);
+        ApiDataDto apiDataDto = apiDataService.getApiData(apiDataId);
         String responseHeadersName = "Path: " + restOfTheUrl + " X-Api-Identifier: " + projectName + " X-Real-IP: " + xRealIp + " X-Forwarded-For: " + xForwardedFor + " Host: " + host + " X-Forwarded-Proto: " + xForwardedProto;
-        return getResponseDto(responseHeadersName);
+        return getResponseDto(apiDataDto);
     }
 
     @RequestMapping(value = "/async", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
