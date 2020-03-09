@@ -52,6 +52,9 @@ public class ProxyController extends AbstractController {
         apiDataDto.getApiPathDataDtoList().parallelStream().filter(apiPathDataDto -> restOfTheUrl.trim().equalsIgnoreCase(apiPathDataDto.getPath())).filter(apiPathDataDto -> apiPathDataDto.getType().equalsIgnoreCase("GET")).findAny().orElseThrow(() -> new ApiDataNotFoundException("API path not found"));
         String serverUrl = apiDataDto.getApiServerDataDto().getUrl();
         String fullUrl = serverUrl + restOfTheUrl;
+        if (null != httpServletRequest.getQueryString()) {
+            fullUrl = fullUrl + "?" + httpServletRequest.getQueryString();
+        }
         HttpGet httpGet = configuredHttpGet(fullUrl, null);
         asyncLoggerService.asyncLogOfCustomMessage("Send sync GET request to the URL: {}", fullUrl);
         byte[] response = httpService.sendHttpRequest(httpGet);
