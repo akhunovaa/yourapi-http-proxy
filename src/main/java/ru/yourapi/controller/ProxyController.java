@@ -29,7 +29,6 @@ import java.nio.charset.StandardCharsets;
 @RestController
 public class ProxyController extends AbstractController {
 
-
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyController.class);
 
     @Autowired
