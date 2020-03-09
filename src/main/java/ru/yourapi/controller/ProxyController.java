@@ -1,6 +1,9 @@
 package ru.yourapi.controller;
 
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,7 +14,6 @@ import org.springframework.web.servlet.HandlerMapping;
 import ru.yourapi.dto.ApiDataDto;
 import ru.yourapi.exception.ApiDataNotFoundException;
 import ru.yourapi.model.HttpRequest;
-import ru.yourapi.model.Response;
 import ru.yourapi.service.ApiDataService;
 import ru.yourapi.service.AsyncLoggerService;
 import ru.yourapi.service.HttpService;
@@ -19,6 +21,8 @@ import ru.yourapi.util.ClientInfoUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 @SuppressWarnings("deprecation")
@@ -26,12 +30,11 @@ import java.nio.charset.StandardCharsets;
 public class ProxyController extends AbstractController {
 
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProxyController.class);
     @Autowired
     private HttpService httpService;
-
     @Autowired
     private AsyncLoggerService asyncLoggerService;
-
     @Autowired
     private ApiDataService apiDataService;
 
@@ -62,7 +65,7 @@ public class ProxyController extends AbstractController {
     }
 
     @RequestMapping(value = "/**", method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
-    public Response proxyServiceSyncPost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    public void proxyServiceSyncPost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         String clientBrowser = ClientInfoUtil.getClientBrowser(httpServletRequest);
         String clientOs = ClientInfoUtil.getClientOS(httpServletRequest);
         String clientIp = ClientInfoUtil.getClientIpAddr(httpServletRequest);
@@ -72,11 +75,31 @@ public class ProxyController extends AbstractController {
         String host = httpServletRequest.getHeader("Host");
         String xForwardedProto = httpServletRequest.getHeader("X-Forwarded-Proto");
         asyncLoggerService.asyncLogOfIncomingHttpRequest("Request GET from IP: {} OS: {} User-Agent: {} X-Real-IP: {} X-Forwarded-For: {} Host: {} X-Forwarded-Proto: {}", clientBrowser, clientOs, clientIp, projectName, xRealIp, xForwardedFor, host, xForwardedProto);
-        String restOfTheUrl = (String) httpServletRequest.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         Long apiDataId = Long.valueOf(projectName.split("-")[0]);
         ApiDataDto apiDataDto = apiDataService.getApiData(apiDataId);
+        String restOfTheUrl = (String) httpServletRequest.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         apiDataDto.getApiPathDataDtoList().parallelStream().filter(apiPathDataDto -> restOfTheUrl.trim().equalsIgnoreCase(apiPathDataDto.getPath())).filter(apiPathDataDto -> apiPathDataDto.getType().equalsIgnoreCase("POST")).findAny().orElseThrow(() -> new ApiDataNotFoundException("API path not found"));
-        return getResponseDto(apiDataDto);
+        String serverUrl = apiDataDto.getApiServerDataDto().getUrl();
+        String fullUrl = serverUrl + restOfTheUrl;
+        if (null != httpServletRequest.getQueryString()) {
+            fullUrl = fullUrl + "?" + httpServletRequest.getQueryString();
+        }
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        try {
+            int nRead;
+            byte[] data = new byte[1024];
+            while ((nRead = httpServletRequest.getInputStream().read(data, 0, data.length)) != -1) {
+                buffer.write(data, 0, nRead);
+            }
+            buffer.flush();
+        } catch (IOException e) {
+            LOGGER.error("Body get error", e);
+        }
+        byte[] byteArray = buffer.toByteArray();
+        HttpPost httpPost = configuredHttpPost(byteArray, fullUrl, null);
+        asyncLoggerService.asyncLogOfCustomMessage("Send sync POST request to the URL: {}", fullUrl);
+        byte[] response = httpService.sendHttpRequest(httpPost);
+        returnJsonString(new String(response, StandardCharsets.UTF_8), httpServletResponse);
     }
 
     @RequestMapping(value = "/async", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
