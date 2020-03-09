@@ -31,6 +31,7 @@ public class ProxyController extends AbstractController {
 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyController.class);
+
     @Autowired
     private HttpService httpService;
     @Autowired
