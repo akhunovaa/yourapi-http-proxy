@@ -58,6 +58,14 @@ public class ApiDataEntity {
     )
     private List<ApiPathDataEntity> apiPathDataEntityList;
 
+    @OneToOne(
+            mappedBy = "apiDataEntity",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.EAGER
+    )
+    private ApiServerDataEntity apiServerDataEntity;
+
     public Long getId() {
         return id;
     }
@@ -160,5 +168,13 @@ public class ApiDataEntity {
 
     public void setApiPathDataEntityList(List<ApiPathDataEntity> apiPathDataEntityList) {
         this.apiPathDataEntityList = apiPathDataEntityList;
+    }
+
+    public ApiServerDataEntity getApiServerDataEntity() {
+        return apiServerDataEntity;
+    }
+
+    public void setApiServerDataEntity(ApiServerDataEntity apiServerDataEntity) {
+        this.apiServerDataEntity = apiServerDataEntity;
     }
 }

@@ -30,6 +30,9 @@ public class ApiDataDto extends AbstractDto {
     @JsonProperty("paths")
     private List<ApiPathDataDto> apiPathDataDtoList;
 
+    @JsonProperty("server")
+    private ApiServerDataDto apiServerDataDto;
+
     public String getName() {
         return name;
     }
@@ -142,6 +145,14 @@ public class ApiDataDto extends AbstractDto {
         this.apiPathDataDtoList = apiPathDataDtoList;
     }
 
+    public ApiServerDataDto getApiServerDataDto() {
+        return apiServerDataDto;
+    }
+
+    public void setApiServerDataDto(ApiServerDataDto apiServerDataDto) {
+        this.apiServerDataDto = apiServerDataDto;
+    }
+
     @Override
     public String toString() {
         return "ApiDataDto{" +
@@ -159,6 +170,7 @@ public class ApiDataDto extends AbstractDto {
                 ", created=" + created +
                 ", updated=" + updated +
                 ", apiPathDataDtoList=" + apiPathDataDtoList +
+                ", apiServerDataDto=" + apiServerDataDto +
                 '}';
     }
 }

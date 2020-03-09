@@ -5,6 +5,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import ru.yourapi.dto.ApiDataDto;
 import ru.yourapi.dto.ApiPathDataDto;
+import ru.yourapi.dto.ApiServerDataDto;
 import ru.yourapi.dto.User;
 import ru.yourapi.entity.api.ApiDataEntity;
 import ru.yourapi.entity.api.ApiPathDataEntity;
@@ -67,6 +68,10 @@ public class ApiDataServiceImpl implements ApiDataService {
             apiPathDataDto.setType(apiPathDataEntity.getApiOperationTypeEntity().getName());
             apiPathDataDtoList.add(apiPathDataDto);
         }
+        ApiServerDataDto apiServerDataDto = new ApiServerDataDto();
+        apiServerDataDto.setUrl(apiDataEntity.getApiServerDataEntity().getUrl());
+        apiServerDataDto.setDescription(apiDataEntity.getApiServerDataEntity().getDescription());
+        apiDataDto.setApiServerDataDto(apiServerDataDto);
         apiDataDto.setApiPathDataDtoList(apiPathDataDtoList);
         return apiDataDto;
     }
