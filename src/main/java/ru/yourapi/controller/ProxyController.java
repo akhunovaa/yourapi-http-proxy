@@ -38,7 +38,7 @@ public class ProxyController extends AbstractController {
     @Autowired
     private ApiDataService apiDataService;
 
-    @RequestMapping(value = "/**", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE}, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/**", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
     public void proxyServiceSyncGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         String clientBrowser = ClientInfoUtil.getClientBrowser(httpServletRequest);
         String clientOs = ClientInfoUtil.getClientOS(httpServletRequest);
@@ -61,6 +61,7 @@ public class ProxyController extends AbstractController {
         HttpGet httpGet = configuredHttpGet(fullUrl, null);
         asyncLoggerService.asyncLogOfCustomMessage("Send sync GET request to the URL: {}", fullUrl);
         byte[] response = httpService.sendHttpRequest(httpGet);
+        asyncLoggerService.asyncLogOfCustomMessage("Send sync GET request to the URL with response: {}", new String(response, StandardCharsets.UTF_8));
         returnJsonString(new String(response, StandardCharsets.UTF_8), httpServletResponse);
     }
 
