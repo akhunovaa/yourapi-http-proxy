@@ -91,10 +91,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().accessDeniedHandler(accessDeniedHandler).authenticationEntryPoint(authenticationEntryPoint)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/ping", "/**")
+                .antMatchers("/**")
                 .permitAll()
-                .anyRequest()
-                .authenticated()
                 .and()
                 .requestCache().requestCache(getHttpSessionRequestCache());
         //@formatter:on
