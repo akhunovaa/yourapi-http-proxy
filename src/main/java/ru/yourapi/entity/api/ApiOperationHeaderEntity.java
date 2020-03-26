@@ -1,5 +1,7 @@
 package ru.yourapi.entity.api;
 
+import com.google.common.base.Objects;
+
 import javax.persistence.*;
 import java.sql.Timestamp;
 
@@ -107,5 +109,24 @@ public class ApiOperationHeaderEntity {
 
     public void setAudWhenUpdate(Timestamp audWhenUpdate) {
         this.audWhenUpdate = audWhenUpdate;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ApiOperationHeaderEntity that = (ApiOperationHeaderEntity) o;
+        return Objects.equal(id, that.id) &&
+                Objects.equal(name, that.name) &&
+                Objects.equal(value, that.value) &&
+                Objects.equal(isRequired, that.isRequired) &&
+                Objects.equal(description, that.description) &&
+                Objects.equal(apiOperationEntity, that.apiOperationEntity) &&
+                Objects.equal(note, that.note);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id, name, value, isRequired, description, apiOperationEntity, note);
     }
 }

@@ -1,5 +1,7 @@
 package ru.yourapi.entity.api;
 
+import com.google.common.base.Objects;
+
 import javax.persistence.*;
 import java.sql.Timestamp;
 
@@ -129,5 +131,26 @@ public class ApiOperationResponseEntity {
 
     public void setContentType(String contentType) {
         this.contentType = contentType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ApiOperationResponseEntity that = (ApiOperationResponseEntity) o;
+        return Objects.equal(id, that.id) &&
+                Objects.equal(code, that.code) &&
+                Objects.equal(description, that.description) &&
+                Objects.equal(contentType, that.contentType) &&
+                Objects.equal(encoding, that.encoding) &&
+                Objects.equal(example, that.example) &&
+                Objects.equal(apiOperationEntity, that.apiOperationEntity) &&
+                Objects.equal(schema, that.schema) &&
+                Objects.equal(note, that.note);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id, code, description, contentType, encoding, example, apiOperationEntity, schema, note);
     }
 }

@@ -1,5 +1,7 @@
 package ru.yourapi.entity.api;
 
+import com.google.common.base.Objects;
+
 import javax.persistence.*;
 import java.sql.Timestamp;
 
@@ -96,5 +98,23 @@ public class ApiServerDataEntity {
 
     public void setAudWhenUpdate(Timestamp audWhenUpdate) {
         this.audWhenUpdate = audWhenUpdate;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ApiServerDataEntity that = (ApiServerDataEntity) o;
+        return Objects.equal(id, that.id) &&
+                Objects.equal(url, that.url) &&
+                Objects.equal(description, that.description) &&
+                Objects.equal(variables, that.variables) &&
+                Objects.equal(extensions, that.extensions) &&
+                Objects.equal(apiDataEntity, that.apiDataEntity);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id, url, description, variables, extensions, apiDataEntity);
     }
 }

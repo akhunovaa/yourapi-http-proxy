@@ -1,5 +1,6 @@
 package ru.yourapi.entity.api;
 
+import com.google.common.base.Objects;
 import ru.yourapi.entity.UserEntity;
 
 import javax.persistence.*;
@@ -176,5 +177,29 @@ public class ApiDataEntity {
 
     public void setApiServerDataEntity(ApiServerDataEntity apiServerDataEntity) {
         this.apiServerDataEntity = apiServerDataEntity;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ApiDataEntity that = (ApiDataEntity) o;
+        return Objects.equal(id, that.id) &&
+                Objects.equal(name, that.name) &&
+                Objects.equal(version, that.version) &&
+                Objects.equal(description, that.description) &&
+                Objects.equal(userEntity, that.userEntity) &&
+                Objects.equal(apiCategoryEntity, that.apiCategoryEntity) &&
+                Objects.equal(isBanned, that.isBanned) &&
+                Objects.equal(isApproved, that.isApproved) &&
+                Objects.equal(isDeleted, that.isDeleted) &&
+                Objects.equal(isPrivate, that.isPrivate) &&
+                Objects.equal(apiPathDataEntityList, that.apiPathDataEntityList) &&
+                Objects.equal(apiServerDataEntity, that.apiServerDataEntity);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id, name, version, description, userEntity, apiCategoryEntity, isBanned, isApproved, isDeleted, isPrivate, apiPathDataEntityList, apiServerDataEntity);
     }
 }
