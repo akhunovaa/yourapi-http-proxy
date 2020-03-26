@@ -3,6 +3,7 @@ package ru.yourapi.controller;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
+import ru.yourapi.model.NotFoundResponse;
 import ru.yourapi.model.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,10 @@ abstract class AbstractController {
 
     protected Response getResponseDtoError(String errorMessage) {
         return new Response(false, errorMessage, null);
+    }
+
+    protected NotFoundResponse getNotFoundResponse(String errorMessage) {
+        return new NotFoundResponse(false, errorMessage, null);
     }
 
     public void returnFile(byte[] bytes, String fileName, String charset, HttpServletResponse httpServletResponse) {

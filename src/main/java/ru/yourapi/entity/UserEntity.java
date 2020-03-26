@@ -1,6 +1,7 @@
 package ru.yourapi.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.base.Objects;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -171,5 +172,29 @@ public class UserEntity {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserEntity that = (UserEntity) o;
+        return emailVerified == that.emailVerified &&
+                Objects.equal(id, that.id) &&
+                Objects.equal(login, that.login) &&
+                Objects.equal(password, that.password) &&
+                Objects.equal(name, that.name) &&
+                Objects.equal(surname, that.surname) &&
+                Objects.equal(patrName, that.patrName) &&
+                Objects.equal(phone, that.phone) &&
+                Objects.equal(email, that.email) &&
+                Objects.equal(imageUrl, that.imageUrl) &&
+                Objects.equal(note, that.note) &&
+                Objects.equal(userRole, that.userRole);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id, login, password, name, surname, patrName, phone, email, emailVerified, imageUrl, note, userRole);
     }
 }

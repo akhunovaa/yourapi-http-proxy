@@ -1,11 +1,13 @@
 package ru.yourapi.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import ru.yourapi.exception.CustomException;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import ru.yourapi.exception.CustomException;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Response {
+public class NotFoundResponse extends Response {
 
     private static final String TEXTAREA_TMP = "<textarea>{success:%b,message:'%s'}</textarea>";
 
@@ -16,20 +18,20 @@ public class Response {
     @JsonProperty
     private final Object response;
 
-    public Response() {
+    public NotFoundResponse() {
         this(true, null, null);
     }
 
-    public Response(CustomException exception) {
+    public NotFoundResponse(CustomException exception) {
         this(false, exception.getMessage(), null);
     }
 
-    public Response(Object response) {
+    public NotFoundResponse(Object response) {
         this(true, null, response);
     }
 
-    public Response(Boolean success, String errorMessage, Object response) {
-        this.success = success;
+    public NotFoundResponse(Boolean success, String errorMessage, Object response) {
+        this.success= success;
         this.message = errorMessage;
         this.response = response;
     }
