@@ -5,7 +5,7 @@ import ru.yourapi.entity.UserEntity;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "api_data")
@@ -33,6 +33,9 @@ public class ApiDataEntity {
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     private ApiCategoryEntity apiCategoryEntity;
 
+    @Column(name = "image_token")
+    private String imageToken;
+
     @Column(name = "is_banned")
     private Boolean isBanned;
 
@@ -45,27 +48,46 @@ public class ApiDataEntity {
     @Column(name = "is_private")
     private Boolean isPrivate;
 
-    @Column(name = "aud_when_create")
+    @Column(name = "aud_when_create", nullable = false, columnDefinition = "timestamp default CURRENT_TIMESTAMP")
     private Timestamp audWhenCreate;
 
     @Column(name = "aud_when_update")
     private Timestamp audWhenUpdate;
 
-    @OneToMany(
-            mappedBy = "apiDataEntity",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.EAGER
-    )
-    private List<ApiPathDataEntity> apiPathDataEntityList;
+    @OneToOne(mappedBy = "apiDataEntity", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
+    private ApiDataInfoEntity apiDataInfoEntity;
 
-    @OneToOne(
-            mappedBy = "apiDataEntity",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.EAGER
-    )
+    @OneToOne(mappedBy = "apiDataEntity", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
     private ApiServerDataEntity apiServerDataEntity;
+
+    @OneToMany(mappedBy = "apiDataEntity", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
+    private Set<ApiOperationEntity> apiOperationEntities;
+
+    public void setApiDataInfo(ApiDataInfoEntity apiDataInfoEntity) {
+        apiDataInfoEntity.setApiDataEntity(this);
+    }
+
+    public void removeApiDataInfo(ApiDataInfoEntity apiDataInfoEntity) {
+        apiDataInfoEntity.setApiDataEntity(null);
+    }
+
+    public void setApiDataInfo(ApiServerDataEntity apiServerDataEntity) {
+        apiServerDataEntity.setApiDataEntity(this);
+    }
+
+    public void removeApiDataInfo(ApiServerDataEntity apiServerDataEntity) {
+        apiServerDataEntity.setApiDataEntity(null);
+    }
+
+//    public void addApiPathData(ApiPathDataEntity apiPathDataEntity) {
+//        apiPathDataEntityList.add(apiPathDataEntity);
+//        apiPathDataEntity.setApiDataEntity(this);
+//    }
+//
+//    public void removeApiPathData(ApiPathDataEntity apiPathDataEntity) {
+//        apiPathDataEntityList.remove(apiPathDataEntity);
+//        apiPathDataEntity.setApiDataEntity(null);
+//    }
 
     public Long getId() {
         return id;
@@ -163,12 +185,20 @@ public class ApiDataEntity {
         isPrivate = aPrivate;
     }
 
-    public List<ApiPathDataEntity> getApiPathDataEntityList() {
-        return apiPathDataEntityList;
+    public ApiDataInfoEntity getApiDataInfoEntity() {
+        return apiDataInfoEntity;
     }
 
-    public void setApiPathDataEntityList(List<ApiPathDataEntity> apiPathDataEntityList) {
-        this.apiPathDataEntityList = apiPathDataEntityList;
+    public void setApiDataInfoEntity(ApiDataInfoEntity apiDataInfoEntity) {
+        this.apiDataInfoEntity = apiDataInfoEntity;
+    }
+
+    public String getImageToken() {
+        return imageToken;
+    }
+
+    public void setImageToken(String imageToken) {
+        this.imageToken = imageToken;
     }
 
     public ApiServerDataEntity getApiServerDataEntity() {
@@ -177,6 +207,14 @@ public class ApiDataEntity {
 
     public void setApiServerDataEntity(ApiServerDataEntity apiServerDataEntity) {
         this.apiServerDataEntity = apiServerDataEntity;
+    }
+
+    public Set<ApiOperationEntity> getApiOperationEntities() {
+        return apiOperationEntities;
+    }
+
+    public void setApiOperationEntities(Set<ApiOperationEntity> apiOperationEntities) {
+        this.apiOperationEntities = apiOperationEntities;
     }
 
     @Override
@@ -189,17 +227,16 @@ public class ApiDataEntity {
                 Objects.equal(version, that.version) &&
                 Objects.equal(description, that.description) &&
                 Objects.equal(userEntity, that.userEntity) &&
-                Objects.equal(apiCategoryEntity, that.apiCategoryEntity) &&
+                Objects.equal(imageToken, that.imageToken) &&
                 Objects.equal(isBanned, that.isBanned) &&
                 Objects.equal(isApproved, that.isApproved) &&
                 Objects.equal(isDeleted, that.isDeleted) &&
                 Objects.equal(isPrivate, that.isPrivate) &&
-                Objects.equal(apiPathDataEntityList, that.apiPathDataEntityList) &&
-                Objects.equal(apiServerDataEntity, that.apiServerDataEntity);
+                Objects.equal(apiDataInfoEntity, that.apiDataInfoEntity);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, name, version, description, userEntity, apiCategoryEntity, isBanned, isApproved, isDeleted, isPrivate, apiPathDataEntityList, apiServerDataEntity);
+        return Objects.hashCode(id, name, version, description, userEntity, imageToken, isBanned, isApproved, isDeleted, isPrivate, apiDataInfoEntity);
     }
 }

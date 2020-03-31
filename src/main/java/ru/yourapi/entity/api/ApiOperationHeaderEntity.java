@@ -27,13 +27,13 @@ public class ApiOperationHeaderEntity {
     private String description;
 
     @JoinColumn(name = "api_operation")
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     private ApiOperationEntity apiOperationEntity;
 
     @Column(name = "note")
     private String note;
 
-    @Column(name = "aud_when_create")
+    @Column(name = "aud_when_create", nullable = false, columnDefinition = "timestamp default CURRENT_TIMESTAMP")
     private Timestamp audWhenCreate;
 
     @Column(name = "aud_when_update")
@@ -121,12 +121,11 @@ public class ApiOperationHeaderEntity {
                 Objects.equal(value, that.value) &&
                 Objects.equal(isRequired, that.isRequired) &&
                 Objects.equal(description, that.description) &&
-                Objects.equal(apiOperationEntity, that.apiOperationEntity) &&
                 Objects.equal(note, that.note);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, name, value, isRequired, description, apiOperationEntity, note);
+        return Objects.hashCode(id, name, value, isRequired, description, note);
     }
 }

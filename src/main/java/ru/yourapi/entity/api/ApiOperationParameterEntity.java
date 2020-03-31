@@ -30,7 +30,7 @@ public class ApiOperationParameterEntity {
     private Boolean allowEmptyValue;
 
     @JoinColumn(name = "api_operation")
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     private ApiOperationEntity apiOperationEntity;
 
     @Column(name = "example")
@@ -39,7 +39,7 @@ public class ApiOperationParameterEntity {
     @Column(name = "note")
     private String note;
 
-    @Column(name = "aud_when_create")
+    @Column(name = "aud_when_create", nullable = false, columnDefinition = "timestamp default CURRENT_TIMESTAMP")
     private Timestamp audWhenCreate;
 
     @Column(name = "aud_when_update")
@@ -144,13 +144,12 @@ public class ApiOperationParameterEntity {
                 Objects.equal(description, that.description) &&
                 Objects.equal(isRequired, that.isRequired) &&
                 Objects.equal(allowEmptyValue, that.allowEmptyValue) &&
-                Objects.equal(apiOperationEntity, that.apiOperationEntity) &&
                 Objects.equal(example, that.example) &&
                 Objects.equal(note, that.note);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, input, name, description, isRequired, allowEmptyValue, apiOperationEntity, example, note);
+        return Objects.hashCode(id, input, name, description, isRequired, allowEmptyValue, example, note);
     }
 }

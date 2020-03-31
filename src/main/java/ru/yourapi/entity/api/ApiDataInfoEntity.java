@@ -36,10 +36,10 @@ public class ApiDataInfoEntity {
     private String extensions;
 
     @JoinColumn(name = "api_id")
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     private ApiDataEntity apiDataEntity;
 
-    @Column(name = "aud_when_create")
+    @Column(name = "aud_when_create", nullable = false, columnDefinition = "timestamp default CURRENT_TIMESTAMP")
     private Timestamp audWhenCreate;
 
     @Column(name = "aud_when_update")
@@ -145,12 +145,11 @@ public class ApiDataInfoEntity {
                 Objects.equal(termsOfService, that.termsOfService) &&
                 Objects.equal(contact, that.contact) &&
                 Objects.equal(license, that.license) &&
-                Objects.equal(extensions, that.extensions) &&
-                Objects.equal(apiDataEntity, that.apiDataEntity);
+                Objects.equal(extensions, that.extensions);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, title, version, description, termsOfService, contact, license, extensions, apiDataEntity);
+        return Objects.hashCode(id, title, version, description, termsOfService, contact, license, extensions);
     }
 }

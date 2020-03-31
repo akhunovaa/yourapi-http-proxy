@@ -27,10 +27,10 @@ public class ApiServerDataEntity {
     private String extensions;
 
     @JoinColumn(name = "api_id")
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     private ApiDataEntity apiDataEntity;
 
-    @Column(name = "aud_when_create")
+    @Column(name = "aud_when_create", nullable = false, columnDefinition = "timestamp default CURRENT_TIMESTAMP")
     private Timestamp audWhenCreate;
 
     @Column(name = "aud_when_update")

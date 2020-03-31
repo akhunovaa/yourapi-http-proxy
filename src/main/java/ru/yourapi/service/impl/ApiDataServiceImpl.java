@@ -8,6 +8,7 @@ import ru.yourapi.dto.ApiPathDataDto;
 import ru.yourapi.dto.ApiServerDataDto;
 import ru.yourapi.dto.User;
 import ru.yourapi.entity.api.ApiDataEntity;
+import ru.yourapi.entity.api.ApiOperationEntity;
 import ru.yourapi.entity.api.ApiPathDataEntity;
 import ru.yourapi.exception.ApiDataNotFoundException;
 import ru.yourapi.repository.ApiDAO;
@@ -58,8 +59,9 @@ public class ApiDataServiceImpl implements ApiDataService {
         apiDataDto.setDescription(apiDataEntity.getDescription());
         apiDataDto.setCategory(apiDataEntity.getApiCategoryEntity().getName());
 
-        List<ApiPathDataDto> apiPathDataDtoList = new ArrayList<>(apiDataEntity.getApiPathDataEntityList().size());
-        for (ApiPathDataEntity apiPathDataEntity : apiDataEntity.getApiPathDataEntityList()) {
+        List<ApiPathDataDto> apiPathDataDtoList = new ArrayList<>(apiDataEntity.getApiOperationEntities().size());
+        for (ApiOperationEntity apiOperationEntity : apiDataEntity.getApiOperationEntities()) {
+            ApiPathDataEntity apiPathDataEntity = apiOperationEntity.getApiPathDataEntity();
             ApiPathDataDto apiPathDataDto = new ApiPathDataDto();
             apiPathDataDto.setId(apiPathDataEntity.getId());
             apiPathDataDto.setPath(apiPathDataEntity.getValue());
