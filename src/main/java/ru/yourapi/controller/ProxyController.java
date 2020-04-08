@@ -49,8 +49,7 @@ public class ProxyController extends AbstractController {
         String host = httpServletRequest.getHeader("Host");
         String xForwardedProto = httpServletRequest.getHeader("X-Forwarded-Proto");
         asyncLoggerService.asyncLogOfIncomingHttpRequest("Request GET from IP: {} OS: {} User-Agent: {} X-Real-IP: {} X-Forwarded-For: {} Host: {} X-Forwarded-Proto: {}", clientBrowser, clientOs, clientIp, projectName, xRealIp, xForwardedFor, host, xForwardedProto);
-        Long apiDataId = Long.valueOf(projectName.split("-")[0]);
-        ApiDataDto apiDataDto = apiDataService.getApiData(apiDataId);
+        ApiDataDto apiDataDto = apiDataService.getApiData(projectName);
         String restOfTheUrl = (String) httpServletRequest.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         apiDataDto.getApiPathDataDtoList().parallelStream().filter(apiPathDataDto -> restOfTheUrl.trim().equalsIgnoreCase(apiPathDataDto.getPath())).filter(apiPathDataDto -> apiPathDataDto.getType().equalsIgnoreCase("GET")).findAny().orElseThrow(() -> new ApiDataNotFoundException("API path not found"));
         String serverUrl = apiDataDto.getApiServerDataDto().getUrl();
@@ -76,8 +75,7 @@ public class ProxyController extends AbstractController {
         String host = httpServletRequest.getHeader("Host");
         String xForwardedProto = httpServletRequest.getHeader("X-Forwarded-Proto");
         asyncLoggerService.asyncLogOfIncomingHttpRequest("Request GET from IP: {} OS: {} User-Agent: {} X-Real-IP: {} X-Forwarded-For: {} Host: {} X-Forwarded-Proto: {}", clientBrowser, clientOs, clientIp, projectName, xRealIp, xForwardedFor, host, xForwardedProto);
-        Long apiDataId = Long.valueOf(projectName.split("-")[0]);
-        ApiDataDto apiDataDto = apiDataService.getApiData(apiDataId);
+        ApiDataDto apiDataDto = apiDataService.getApiData(projectName);
         String restOfTheUrl = (String) httpServletRequest.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         apiDataDto.getApiPathDataDtoList().parallelStream().filter(apiPathDataDto -> restOfTheUrl.trim().equalsIgnoreCase(apiPathDataDto.getPath())).filter(apiPathDataDto -> apiPathDataDto.getType().equalsIgnoreCase("POST")).findAny().orElseThrow(() -> new ApiDataNotFoundException("API path not found"));
         String serverUrl = apiDataDto.getApiServerDataDto().getUrl();

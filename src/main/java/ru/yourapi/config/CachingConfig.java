@@ -26,5 +26,4 @@ public class CachingConfig {
         cmfb.setShared(true);
         return cmfb;
     }
-
 }

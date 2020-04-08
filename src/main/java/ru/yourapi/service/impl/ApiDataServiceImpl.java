@@ -1,6 +1,7 @@
 package ru.yourapi.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import ru.yourapi.dto.ApiDataDto;
@@ -13,6 +14,7 @@ import ru.yourapi.entity.api.ApiPathDataEntity;
 import ru.yourapi.exception.ApiDataNotFoundException;
 import ru.yourapi.repository.ApiDAO;
 import ru.yourapi.service.ApiDataService;
+import ru.yourapi.util.CustomStringUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +39,15 @@ public class ApiDataServiceImpl implements ApiDataService {
     @Override
     public ApiDataDto getApiData(Long id) {
         ApiDataEntity apiDataEntity = apiDAO.findById(id).orElseThrow(() -> new ApiDataNotFoundException("API doesn't exists"));
-        ApiDataDto apiDataDto = makeApiDataDto(apiDataEntity);
-        return apiDataDto;
+        return makeApiDataDto(apiDataEntity);
+    }
+
+    @Override
+    @Cacheable(value = "api-data", key = "#projectName")
+    public ApiDataDto getApiData(String projectName) {
+        List<ApiDataEntity> apiDataEntityList = apiDAO.getFullApiList();
+        ApiDataEntity apiDataEntity = apiDataEntityList.parallelStream().filter(apiData -> this.streamFilter(apiData, projectName)).findAny().orElseThrow(() -> new ApiDataNotFoundException("API doesn't exists"));
+        return makeApiDataDto(apiDataEntity);
     }
 
     private ApiDataDto makeApiDataDto(ApiDataEntity apiDataEntity) {
@@ -76,6 +85,12 @@ public class ApiDataServiceImpl implements ApiDataService {
         apiDataDto.setApiServerDataDto(apiServerDataDto);
         apiDataDto.setApiPathDataDtoList(apiPathDataDtoList);
         return apiDataDto;
+    }
+
+    private boolean streamFilter(ApiDataEntity apiDataEntity, String requestedProjectName) {
+        String name = CustomStringUtil.transliterate(apiDataEntity.getName()).trim().replaceAll(" ", "-");
+        name = name.length() > 20 ? name.substring(0, 19) : name;
+        return requestedProjectName.equalsIgnoreCase(name);
     }
 
 }

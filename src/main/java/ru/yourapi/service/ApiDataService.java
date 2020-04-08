@@ -12,4 +12,6 @@ public interface ApiDataService {
 
     ApiDataDto getApiData(Long id);
 
+    ApiDataDto getApiData(String projectName);
+
 }
