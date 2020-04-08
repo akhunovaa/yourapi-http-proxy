@@ -45,8 +45,9 @@ public class ApiDataServiceImpl implements ApiDataService {
     @Override
     @Cacheable(value = "api-data", key = "#projectName")
     public ApiDataDto getApiData(String projectName) {
-        List<ApiDataEntity> apiDataEntityList = apiDAO.getFullApiList();
-        ApiDataEntity apiDataEntity = apiDataEntityList.parallelStream().filter(apiData -> this.streamFilter(apiData, projectName)).findAny().orElseThrow(() -> new ApiDataNotFoundException("API doesn't exists"));
+        //List<ApiDataEntity> apiDataEntityList = apiDAO.getFullApiList();
+        ApiDataEntity apiDataEntity = apiDAO.findByShortName(projectName).orElseThrow(() -> new ApiDataNotFoundException("API doesn't exists"));
+        //ApiDataEntity apiDataEntity = apiDataEntityList.parallelStream().filter(apiData -> this.streamFilter(apiData, projectName)).findAny().orElseThrow(() -> new ApiDataNotFoundException("API doesn't exists"));
         return makeApiDataDto(apiDataEntity);
     }
 

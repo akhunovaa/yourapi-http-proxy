@@ -36,6 +36,9 @@ public class ApiDataEntity {
     @Column(name = "image_token")
     private String imageToken;
 
+    @Column(name = "short")
+    private String shortName;
+
     @Column(name = "is_banned")
     private Boolean isBanned;
 
@@ -217,6 +220,14 @@ public class ApiDataEntity {
         this.apiOperationEntities = apiOperationEntities;
     }
 
+    public String getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -227,16 +238,17 @@ public class ApiDataEntity {
                 Objects.equal(version, that.version) &&
                 Objects.equal(description, that.description) &&
                 Objects.equal(userEntity, that.userEntity) &&
+                Objects.equal(apiCategoryEntity, that.apiCategoryEntity) &&
                 Objects.equal(imageToken, that.imageToken) &&
+                Objects.equal(shortName, that.shortName) &&
                 Objects.equal(isBanned, that.isBanned) &&
                 Objects.equal(isApproved, that.isApproved) &&
                 Objects.equal(isDeleted, that.isDeleted) &&
-                Objects.equal(isPrivate, that.isPrivate) &&
-                Objects.equal(apiDataInfoEntity, that.apiDataInfoEntity);
+                Objects.equal(isPrivate, that.isPrivate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, name, version, description, userEntity, imageToken, isBanned, isApproved, isDeleted, isPrivate, apiDataInfoEntity);
+        return Objects.hashCode(id, name, version, description, userEntity, apiCategoryEntity, imageToken, shortName, isBanned, isApproved, isDeleted, isPrivate);
     }
 }

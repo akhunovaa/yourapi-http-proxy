@@ -9,6 +9,8 @@ public interface ApiDAO {
 
     Optional<ApiDataEntity> findById(Long id);
 
+    Optional<ApiDataEntity> findByShortName(String shortName);
+
     List<ApiDataEntity> getFullApiList();
 
 }
