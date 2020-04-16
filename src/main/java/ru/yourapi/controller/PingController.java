@@ -6,11 +6,15 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import ru.yourapi.dto.ResponsePingDto;
 import ru.yourapi.model.Response;
-import ru.yourapi.util.ClientInfoUtil;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("deprecation")
 @RestController
@@ -19,12 +23,17 @@ public class PingController extends AbstractController {
     private static final Logger LOGGER = LoggerFactory.getLogger(PingController.class);
 
     @RequestMapping(value = "/ping", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public Response proxyServicePing(HttpServletRequest httpServletRequest) {
-        String clientBrowser = ClientInfoUtil.getClientBrowser(httpServletRequest);
-        String clientOs = ClientInfoUtil.getClientOS(httpServletRequest);
-        String clientIp = ClientInfoUtil.getClientIpAddr(httpServletRequest);
-        LOGGER.info("Request ping from IP: {} OS: {} User-Agent:", clientIp, clientOs, clientBrowser);
-        return getResponseDto(new ResponsePingDto(clientIp));
+    public Response mobileServicePing(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+
+        Map<String, Serializable> headers = Collections.list(httpServletRequest.getHeaderNames()).stream().collect(Collectors.toMap(h -> h, h -> {
+            ArrayList<String> headerValues = Collections.list(httpServletRequest.getHeaders(h));
+            return headerValues.size() == 1 ? headerValues.get(0) : headerValues;
+        }));
+        for (String headerName : headers.keySet()) {
+            String headerValue = (String) headers.get(headerName);
+            LOGGER.info("Header name: {}, Header value: {}", headerName, headerValue);
+        }
+        return getResponseDto(headers);
     }
 
 }
