@@ -3,11 +3,12 @@ package ru.yourapi.entity.api;
 import com.google.common.base.Objects;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "api_operation_header")
-public class ApiOperationHeaderEntity {
+public class ApiOperationHeaderEntity  implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

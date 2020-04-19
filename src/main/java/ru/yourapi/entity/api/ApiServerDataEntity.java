@@ -3,11 +3,12 @@ package ru.yourapi.entity.api;
 import com.google.common.base.Objects;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "api_server_data")
-public class ApiServerDataEntity {
+public class ApiServerDataEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

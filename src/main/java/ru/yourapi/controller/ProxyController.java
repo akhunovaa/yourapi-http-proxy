@@ -15,19 +15,25 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.HandlerMapping;
 import ru.yourapi.dto.ApiDataDto;
+import ru.yourapi.dto.ApiPathDataDto;
+import ru.yourapi.dto.ApiPathParamDataDto;
 import ru.yourapi.dto.UserPrincipal;
 import ru.yourapi.exception.ApiDataNotFoundException;
+import ru.yourapi.exception.ApiPathNotFoundException;
 import ru.yourapi.model.HttpRequest;
 import ru.yourapi.service.ApiDataService;
 import ru.yourapi.service.AsyncLoggerService;
 import ru.yourapi.service.HttpService;
 import ru.yourapi.util.ClientInfoUtil;
+import ru.yourapi.util.QueryUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("deprecation")
 @RestController
@@ -47,7 +53,6 @@ public class ProxyController extends AbstractController {
     public void proxyServiceSyncGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal userPrincipal = (UserPrincipal) usernamePasswordAuthenticationToken.getPrincipal();
-        String apiRemoteHost = httpServletRequest.getHeader("x-yourapi-host");
         String projectName = httpServletRequest.getHeader("X-Api-Identifier");
         Long userId = userPrincipal.getId();
         String userLogin = userPrincipal.getLogin();
@@ -55,15 +60,47 @@ public class ProxyController extends AbstractController {
         ApiDataDto apiDataDto = apiDataService.getApiData(projectName);
 
         String restOfTheUrl = (String) httpServletRequest.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        apiDataDto.getApiPathDataDtoList().parallelStream().filter(apiPathDataDto -> restOfTheUrl.trim().equalsIgnoreCase(apiPathDataDto.getPath())).filter(apiPathDataDto -> apiPathDataDto.getType().equalsIgnoreCase("GET")).findAny().orElseThrow(() -> new ApiDataNotFoundException("API path not found"));
-        String serverUrl = apiDataDto.getApiServerDataDto().getUrl();
-        String fullUrl = serverUrl + restOfTheUrl;
-        if (null != httpServletRequest.getQueryString()) {
-            fullUrl = fullUrl + "?" + httpServletRequest.getQueryString();
+        String[] pathParts = restOfTheUrl.split("/");
+
+        Map<String, String[]> params = QueryUtil.getQueryParameters(httpServletRequest);
+        int pathIdx = 1;
+        StringBuilder restPath = new StringBuilder();
+
+        List<ApiPathDataDto> apiDataDtoApiPathDataDtoList = apiDataDto.getApiPathDataDtoList();
+        for (ApiPathDataDto apiPathDataDto : apiDataDtoApiPathDataDtoList) {
+            if (apiPathDataDto.getType().equalsIgnoreCase("GET")) {
+                List<ApiPathParamDataDto> apiPathParamDataDtoList = apiPathDataDto.getApiPathParamDataList();
+                for (ApiPathParamDataDto apiPathParamDataDto : apiPathParamDataDtoList) {
+                    String pathParameterName = apiPathParamDataDto.getName();
+                    if (apiPathParamDataDto.getInput().equals("path") && pathParts.length > pathIdx) {
+                        params.put(pathParameterName, new String[]{pathParts[pathIdx]});
+                        restPath.append("/{").append(apiPathParamDataDto.getName()).append("}");
+                        pathIdx++;
+                        if (pathParts.length > pathIdx){
+                            restPath.append("/").append(pathParts[pathIdx]);
+                        }
+                    }
+                }
+            }
         }
 
-        HttpGet httpGet = configuredHttpGet(fullUrl, null);
-        asyncLoggerService.asyncLogOfCustomMessage("Send sync GET request to the URL: {}", fullUrl);
+        String[] splittedRestPath = restPath.toString().split("/");
+        for (int i = 1; i < splittedRestPath.length; i++) {
+            String s = splittedRestPath[i];
+            if (!s.startsWith("{") && !s.endsWith("}")){
+                if (pathParts[i].equalsIgnoreCase(s)){
+                    throw new ApiPathNotFoundException();
+                }
+            }
+        }
+
+
+        String serverUrl = apiDataDto.getApiServerDataDto().getUrl();
+        StringBuilder fullUrlBuilder = new StringBuilder();
+        fullUrlBuilder.append(serverUrl).append(restOfTheUrl).append("?").append(httpServletRequest.getQueryString());
+
+        HttpGet httpGet = configuredHttpGet(fullUrlBuilder.toString(), null);
+        asyncLoggerService.asyncLogOfCustomMessage("Send sync GET request to the URL: {}", fullUrlBuilder.toString());
         byte[] response = httpService.sendHttpRequest(httpGet);
         asyncLoggerService.asyncLogOfCustomMessage("Send sync GET request to the URL with response: {}", new String(response, StandardCharsets.UTF_8));
         returnJsonString(new String(response, StandardCharsets.UTF_8), httpServletResponse);
@@ -74,17 +111,52 @@ public class ProxyController extends AbstractController {
     public void proxyServiceSyncPost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal userPrincipal = (UserPrincipal) usernamePasswordAuthenticationToken.getPrincipal();
-
         String projectName = httpServletRequest.getHeader("X-Api-Identifier");
+        Long userId = userPrincipal.getId();
+        String userLogin = userPrincipal.getLogin();
 
         ApiDataDto apiDataDto = apiDataService.getApiData(projectName);
+
         String restOfTheUrl = (String) httpServletRequest.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        apiDataDto.getApiPathDataDtoList().parallelStream().filter(apiPathDataDto -> restOfTheUrl.trim().equalsIgnoreCase(apiPathDataDto.getPath())).filter(apiPathDataDto -> apiPathDataDto.getType().equalsIgnoreCase("POST")).findAny().orElseThrow(() -> new ApiDataNotFoundException("API path not found"));
-        String serverUrl = apiDataDto.getApiServerDataDto().getUrl();
-        String fullUrl = serverUrl + restOfTheUrl;
-        if (null != httpServletRequest.getQueryString()) {
-            fullUrl = fullUrl + "?" + httpServletRequest.getQueryString();
+        String[] pathParts = restOfTheUrl.split("/");
+
+        Map<String, String[]> params = QueryUtil.getQueryParameters(httpServletRequest);
+        int pathIdx = 1;
+        StringBuilder restPath = new StringBuilder();
+
+        List<ApiPathDataDto> apiDataDtoApiPathDataDtoList = apiDataDto.getApiPathDataDtoList();
+        for (ApiPathDataDto apiPathDataDto : apiDataDtoApiPathDataDtoList) {
+            if (apiPathDataDto.getType().equalsIgnoreCase("GET")) {
+                List<ApiPathParamDataDto> apiPathParamDataDtoList = apiPathDataDto.getApiPathParamDataList();
+                for (ApiPathParamDataDto apiPathParamDataDto : apiPathParamDataDtoList) {
+                    String pathParameterName = apiPathParamDataDto.getName();
+                    if (apiPathParamDataDto.getInput().equals("path") && pathParts.length > pathIdx) {
+                        params.put(pathParameterName, new String[]{pathParts[pathIdx]});
+                        restPath.append("/{").append(apiPathParamDataDto.getName()).append("}");
+                        pathIdx++;
+                        if (pathParts.length > pathIdx){
+                            restPath.append("/").append(pathParts[pathIdx]);
+                        }
+                    }
+                }
+            }
         }
+
+        String[] splittedRestPath = restPath.toString().split("/");
+        for (int i = 1; i < splittedRestPath.length; i++) {
+            String s = splittedRestPath[i];
+            if (!s.startsWith("{") && !s.endsWith("}")){
+                if (pathParts[i].equalsIgnoreCase(s)){
+                    throw new ApiPathNotFoundException();
+                }
+            }
+        }
+
+
+        String serverUrl = apiDataDto.getApiServerDataDto().getUrl();
+        StringBuilder fullUrlBuilder = new StringBuilder();
+        fullUrlBuilder.append(serverUrl).append(restOfTheUrl).append("?").append(httpServletRequest.getQueryString());
+
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         try {
             int nRead;
@@ -97,8 +169,8 @@ public class ProxyController extends AbstractController {
             LOGGER.error("Body get error", e);
         }
         byte[] byteArray = buffer.toByteArray();
-        HttpPost httpPost = configuredHttpPost(byteArray, fullUrl, null);
-        asyncLoggerService.asyncLogOfCustomMessage("Send sync POST request to the URL: {}", fullUrl);
+        HttpPost httpPost = configuredHttpPost(byteArray, fullUrlBuilder.toString(), null);
+        asyncLoggerService.asyncLogOfCustomMessage("Send sync POST request to the URL: {}", fullUrlBuilder.toString());
         byte[] response = httpService.sendHttpRequest(httpPost);
         returnJsonString(new String(response, StandardCharsets.UTF_8), httpServletResponse);
     }

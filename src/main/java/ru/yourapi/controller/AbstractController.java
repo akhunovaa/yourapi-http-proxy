@@ -3,12 +3,12 @@ package ru.yourapi.controller;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
-import ru.yourapi.model.NotFoundResponse;
-import ru.yourapi.model.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import ru.yourapi.model.NotFoundResponse;
+import ru.yourapi.model.Response;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -73,7 +73,7 @@ abstract class AbstractController {
         HttpGet httpGet = new HttpGet(url);
         httpGet.setHeader("Accept", MediaType.APPLICATION_JSON_UTF8_VALUE);
         httpGet.setHeader("Content-Type", MediaType.APPLICATION_JSON_UTF8_VALUE);
-        if (null != cookies){
+        if (null != cookies) {
             httpGet.setHeader("Cookie", cookies);
         }
         return httpGet;
@@ -85,7 +85,7 @@ abstract class AbstractController {
         HttpPost httpPost = new HttpPost(url);
         httpPost.setHeader("Accept", MediaType.APPLICATION_JSON_UTF8_VALUE);
         httpPost.setHeader("Content-Type", MediaType.APPLICATION_JSON_UTF8_VALUE);
-        if (null != cookies){
+        if (null != cookies) {
             httpPost.setHeader("Cookie", cookies);
         }
         httpPost.setEntity(bae);

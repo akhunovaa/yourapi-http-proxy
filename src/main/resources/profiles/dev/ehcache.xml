@@ -17,8 +17,8 @@
         <persistence strategy="localTempSwap" />
     </cache>
 
-    <cache name="api-data" maxEntriesLocalHeap="1000" maxEntriesLocalDisk="1000" eternal="false"
-        diskSpoolBufferSizeMB="100" timeToIdleSeconds="600" timeToLiveSeconds="1600" memoryStoreEvictionPolicy="LFU"
+    <cache name="api-data" maxEntriesLocalHeap="1000" maxEntriesLocalDisk="2000" eternal="false"
+        diskSpoolBufferSizeMB="100" timeToIdleSeconds="60" timeToLiveSeconds="120" memoryStoreEvictionPolicy="LFU"
         transactionalMode="off">
         <persistence strategy="localTempSwap" />
     </cache>

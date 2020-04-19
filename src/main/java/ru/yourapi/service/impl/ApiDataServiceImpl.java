@@ -4,12 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
-import ru.yourapi.dto.ApiDataDto;
-import ru.yourapi.dto.ApiPathDataDto;
-import ru.yourapi.dto.ApiServerDataDto;
-import ru.yourapi.dto.User;
+import ru.yourapi.dto.*;
 import ru.yourapi.entity.api.ApiDataEntity;
 import ru.yourapi.entity.api.ApiOperationEntity;
+import ru.yourapi.entity.api.ApiOperationParameterEntity;
 import ru.yourapi.entity.api.ApiPathDataEntity;
 import ru.yourapi.exception.ApiDataNotFoundException;
 import ru.yourapi.repository.ApiDAO;
@@ -71,15 +69,34 @@ public class ApiDataServiceImpl implements ApiDataService {
 
         List<ApiPathDataDto> apiPathDataDtoList = new ArrayList<>(apiDataEntity.getApiOperationEntities().size());
         for (ApiOperationEntity apiOperationEntity : apiDataEntity.getApiOperationEntities()) {
+
+            List<ApiPathParamDataDto> apiPathParamDataDtoList = new ArrayList<>(apiOperationEntity.getApiOperationParameterEntityList().size());
             ApiPathDataEntity apiPathDataEntity = apiOperationEntity.getApiPathDataEntity();
-            ApiPathDataDto apiPathDataDto = new ApiPathDataDto();
-            apiPathDataDto.setId(apiPathDataEntity.getId());
-            apiPathDataDto.setPath(apiPathDataEntity.getValue());
-            apiPathDataDto.setDescription(apiPathDataEntity.getDescription());
-            apiPathDataDto.setSummary(apiPathDataEntity.getSummary());
-            apiPathDataDto.setType(apiPathDataEntity.getApiOperationTypeEntity().getName());
+
+            for (ApiOperationParameterEntity apiOperationParameterEntity : apiOperationEntity.getApiOperationParameterEntityList()) {
+                ApiPathParamDataDto apiPathParamDataDto = ApiPathParamDataDto.newBuilder()
+                        .setId(apiOperationParameterEntity.getId())
+                        .setInput(apiOperationParameterEntity.getInput())
+                        .setName(apiOperationParameterEntity.getName())
+                        .setDescription(apiOperationParameterEntity.getDescription())
+                        .setRequired(null != apiOperationParameterEntity.getRequired())
+                        .setAllowEmptyValued(null != apiOperationParameterEntity.getAllowEmptyValue())
+                        .setExample(apiOperationParameterEntity.getExample())
+                        .build();
+                apiPathParamDataDtoList.add(apiPathParamDataDto);
+            }
+
+            ApiPathDataDto apiPathDataDto = ApiPathDataDto.newBuilder()
+                    .setId(apiPathDataEntity.getId())
+                    .setPath(apiPathDataEntity.getValue())
+                    .setDescription(apiPathDataEntity.getDescription())
+                    .setSummary(apiPathDataEntity.getSummary())
+                    .setType(apiPathDataEntity.getApiOperationTypeEntity().getName())
+                    .setApiPathParamDataList(apiPathParamDataDtoList)
+                    .build();
             apiPathDataDtoList.add(apiPathDataDto);
         }
+
         ApiServerDataDto apiServerDataDto = new ApiServerDataDto();
         apiServerDataDto.setUrl(apiDataEntity.getApiServerDataEntity().getUrl());
         apiServerDataDto.setDescription(apiDataEntity.getApiServerDataEntity().getDescription());
