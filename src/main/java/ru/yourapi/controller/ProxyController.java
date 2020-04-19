@@ -76,7 +76,7 @@ public class ProxyController extends AbstractController {
                         params.put(pathParameterName, new String[]{pathParts[pathIdx]});
                         restPath.append("/{").append(apiPathParamDataDto.getName()).append("}");
                         pathIdx++;
-                        if (pathParts.length > pathIdx){
+                        if (pathParts.length > pathIdx) {
                             restPath.append("/").append(pathParts[pathIdx]);
                         }
                     }
@@ -87,13 +87,19 @@ public class ProxyController extends AbstractController {
         String[] splittedRestPath = restPath.toString().split("/");
         for (int i = 1; i < splittedRestPath.length; i++) {
             String s = splittedRestPath[i];
-            if (!s.startsWith("{") && !s.endsWith("}")){
-                if (pathParts[i].equalsIgnoreCase(s)){
+            if (!s.startsWith("{") && !s.endsWith("}")) {
+                if (pathParts[i].equalsIgnoreCase(s)) {
                     throw new ApiPathNotFoundException();
                 }
             }
         }
 
+        if (pathIdx == 1) {
+            apiDataDto.getApiPathDataDtoList().parallelStream()
+                    .filter(apiPathDataDto -> restOfTheUrl.trim().equalsIgnoreCase(apiPathDataDto.getPath()))
+                    .filter(apiPathDataDto -> apiPathDataDto.getType().equalsIgnoreCase("GET"))
+                    .findAny().orElseThrow(() -> new ApiDataNotFoundException("API path not found"));
+        }
 
         String serverUrl = apiDataDto.getApiServerDataDto().getUrl();
         StringBuilder fullUrlBuilder = new StringBuilder();
@@ -134,7 +140,7 @@ public class ProxyController extends AbstractController {
                         params.put(pathParameterName, new String[]{pathParts[pathIdx]});
                         restPath.append("/{").append(apiPathParamDataDto.getName()).append("}");
                         pathIdx++;
-                        if (pathParts.length > pathIdx){
+                        if (pathParts.length > pathIdx) {
                             restPath.append("/").append(pathParts[pathIdx]);
                         }
                     }
@@ -145,11 +151,18 @@ public class ProxyController extends AbstractController {
         String[] splittedRestPath = restPath.toString().split("/");
         for (int i = 1; i < splittedRestPath.length; i++) {
             String s = splittedRestPath[i];
-            if (!s.startsWith("{") && !s.endsWith("}")){
-                if (pathParts[i].equalsIgnoreCase(s)){
+            if (!s.startsWith("{") && !s.endsWith("}")) {
+                if (pathParts[i].equalsIgnoreCase(s)) {
                     throw new ApiPathNotFoundException();
                 }
             }
+        }
+
+        if (pathIdx == 1) {
+            apiDataDto.getApiPathDataDtoList().parallelStream()
+                    .filter(apiPathDataDto -> restOfTheUrl.trim().equalsIgnoreCase(apiPathDataDto.getPath()))
+                    .filter(apiPathDataDto -> apiPathDataDto.getType().equalsIgnoreCase("POST"))
+                    .findAny().orElseThrow(() -> new ApiDataNotFoundException("API path not found"));
         }
 
 
