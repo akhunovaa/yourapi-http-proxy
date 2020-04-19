@@ -22,6 +22,7 @@ import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 import ru.yourapi.filter.AdditionalLoggingFilter;
+import ru.yourapi.filter.CorsFilterProxyFilter;
 import ru.yourapi.filter.SubscriptionCheckFilter;
 import ru.yourapi.filter.TokenAuthenticationFilter;
 import ru.yourapi.listener.CustomAccessDeniedHandler;
@@ -47,6 +48,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private SubscriptionCheckFilter subscriptionCheckFilter;
     @Autowired
     private AdditionalLoggingFilter additionalLoggingFilter;
+    @Autowired
+    private CorsFilterProxyFilter corsFilterProxyFilter;
 
     @Bean
     public RestOperations restTemplate() {
@@ -102,7 +105,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .requestCache().requestCache(getHttpSessionRequestCache());
         //@formatter:on
-        http.addFilterBefore(additionalLoggingFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(corsFilterProxyFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(additionalLoggingFilter, CorsFilterProxyFilter.class);
         http.addFilterAfter(tokenAuthenticationFilter, AdditionalLoggingFilter.class);
         http.addFilterAfter(subscriptionCheckFilter, TokenAuthenticationFilter.class);
     }
