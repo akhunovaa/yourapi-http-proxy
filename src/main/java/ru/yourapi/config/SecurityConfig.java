@@ -21,6 +21,8 @@ import org.springframework.security.web.header.writers.StaticHeadersWriter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
+import ru.yourapi.filter.AdditionalLoggingFilter;
+import ru.yourapi.filter.SubscriptionCheckFilter;
 import ru.yourapi.filter.TokenAuthenticationFilter;
 import ru.yourapi.listener.CustomAccessDeniedHandler;
 import ru.yourapi.listener.CustomAuthenticationEntryPoint;
@@ -41,6 +43,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private AuthenticationEntryPoint authenticationEntryPoint;
     @Autowired
     private TokenAuthenticationFilter tokenAuthenticationFilter;
+    @Autowired
+    private SubscriptionCheckFilter subscriptionCheckFilter;
+    @Autowired
+    private AdditionalLoggingFilter additionalLoggingFilter;
 
     @Bean
     public RestOperations restTemplate() {
@@ -76,8 +82,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         //@formatter:off
-        http    .headers()
-                .addHeaderWriter(new StaticHeadersWriter("Server","YourAPI-0.1"))
+        http.headers()
+                .addHeaderWriter(new StaticHeadersWriter("Server", "YourAPI-0.1"))
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -96,7 +102,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .requestCache().requestCache(getHttpSessionRequestCache());
         //@formatter:on
-        http.addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(additionalLoggingFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(tokenAuthenticationFilter, AdditionalLoggingFilter.class);
+        http.addFilterAfter(subscriptionCheckFilter, TokenAuthenticationFilter.class);
     }
 
     private HttpSessionRequestCache getHttpSessionRequestCache() {

@@ -1,15 +1,15 @@
 package ru.yourapi.entity.api;
 
 import com.google.common.base.Objects;
+import org.hibernate.annotations.Formula;
 import ru.yourapi.entity.UserEntity;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.Set;
 
 @Entity
 @Table(name = "api_data")
-public class ApiDataEntity {
+public class ShopApiDataEntity extends ApiData{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,52 +51,17 @@ public class ApiDataEntity {
     @Column(name = "is_private")
     private Boolean isPrivate;
 
-    @Column(name = "aud_when_create", nullable = false, columnDefinition = "timestamp default CURRENT_TIMESTAMP")
+    @Column(name = "aud_when_create")
     private Timestamp audWhenCreate;
 
     @Column(name = "aud_when_update")
     private Timestamp audWhenUpdate;
 
+    @Formula(value="(SELECT count(*) FROM api_data data WHERE data.is_deleted=this_.is_deleted and data.cat_id=this_.cat_id)")
+    private long count;
+
     @Column(name = "uuid")
     private String uuid;
-
-    @Column(name = "secret_uuid")
-    private String secretUUID;
-
-    @OneToOne(mappedBy = "apiDataEntity", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
-    private ApiDataInfoEntity apiDataInfoEntity;
-
-    @OneToOne(mappedBy = "apiDataEntity", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
-    private ApiServerDataEntity apiServerDataEntity;
-
-    @OneToMany(mappedBy = "apiDataEntity", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
-    private Set<ApiOperationEntity> apiOperationEntities;
-
-    public void setApiDataInfo(ApiDataInfoEntity apiDataInfoEntity) {
-        apiDataInfoEntity.setApiDataEntity(this);
-    }
-
-    public void removeApiDataInfo(ApiDataInfoEntity apiDataInfoEntity) {
-        apiDataInfoEntity.setApiDataEntity(null);
-    }
-
-    public void setApiDataInfo(ApiServerDataEntity apiServerDataEntity) {
-        apiServerDataEntity.setApiDataEntity(this);
-    }
-
-    public void removeApiDataInfo(ApiServerDataEntity apiServerDataEntity) {
-        apiServerDataEntity.setApiDataEntity(null);
-    }
-
-//    public void addApiPathData(ApiPathDataEntity apiPathDataEntity) {
-//        apiPathDataEntityList.add(apiPathDataEntity);
-//        apiPathDataEntity.setApiDataEntity(this);
-//    }
-//
-//    public void removeApiPathData(ApiPathDataEntity apiPathDataEntity) {
-//        apiPathDataEntityList.remove(apiPathDataEntity);
-//        apiPathDataEntity.setApiDataEntity(null);
-//    }
 
     public Long getId() {
         return id;
@@ -146,6 +111,14 @@ public class ApiDataEntity {
         this.apiCategoryEntity = apiCategoryEntity;
     }
 
+    public String getImageToken() {
+        return imageToken;
+    }
+
+    public void setImageToken(String imageToken) {
+        this.imageToken = imageToken;
+    }
+
     public Boolean getBanned() {
         return isBanned;
     }
@@ -170,6 +143,14 @@ public class ApiDataEntity {
         isDeleted = deleted;
     }
 
+    public Boolean getPrivate() {
+        return isPrivate;
+    }
+
+    public void setPrivate(Boolean aPrivate) {
+        isPrivate = aPrivate;
+    }
+
     public Timestamp getAudWhenCreate() {
         return audWhenCreate;
     }
@@ -186,44 +167,12 @@ public class ApiDataEntity {
         this.audWhenUpdate = audWhenUpdate;
     }
 
-    public Boolean getPrivate() {
-        return isPrivate;
+    public long getCount() {
+        return count;
     }
 
-    public void setPrivate(Boolean aPrivate) {
-        isPrivate = aPrivate;
-    }
-
-    public ApiDataInfoEntity getApiDataInfoEntity() {
-        return apiDataInfoEntity;
-    }
-
-    public void setApiDataInfoEntity(ApiDataInfoEntity apiDataInfoEntity) {
-        this.apiDataInfoEntity = apiDataInfoEntity;
-    }
-
-    public String getImageToken() {
-        return imageToken;
-    }
-
-    public void setImageToken(String imageToken) {
-        this.imageToken = imageToken;
-    }
-
-    public ApiServerDataEntity getApiServerDataEntity() {
-        return apiServerDataEntity;
-    }
-
-    public void setApiServerDataEntity(ApiServerDataEntity apiServerDataEntity) {
-        this.apiServerDataEntity = apiServerDataEntity;
-    }
-
-    public Set<ApiOperationEntity> getApiOperationEntities() {
-        return apiOperationEntities;
-    }
-
-    public void setApiOperationEntities(Set<ApiOperationEntity> apiOperationEntities) {
-        this.apiOperationEntities = apiOperationEntities;
+    public void setCount(long count) {
+        this.count = count;
     }
 
     public String getShortName() {
@@ -242,20 +191,13 @@ public class ApiDataEntity {
         this.uuid = uuid;
     }
 
-    public String getSecretUUID() {
-        return secretUUID;
-    }
-
-    public void setSecretUUID(String secretUUID) {
-        this.secretUUID = secretUUID;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ApiDataEntity that = (ApiDataEntity) o;
-        return Objects.equal(id, that.id) &&
+        ShopApiDataEntity that = (ShopApiDataEntity) o;
+        return count == that.count &&
+                Objects.equal(id, that.id) &&
                 Objects.equal(name, that.name) &&
                 Objects.equal(version, that.version) &&
                 Objects.equal(description, that.description) &&
@@ -267,12 +209,11 @@ public class ApiDataEntity {
                 Objects.equal(isApproved, that.isApproved) &&
                 Objects.equal(isDeleted, that.isDeleted) &&
                 Objects.equal(isPrivate, that.isPrivate) &&
-                Objects.equal(uuid, that.uuid) &&
-                Objects.equal(secretUUID, that.secretUUID);
+                Objects.equal(uuid, that.uuid);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, name, version, description, userEntity, apiCategoryEntity, imageToken, shortName, isBanned, isApproved, isDeleted, isPrivate, uuid, secretUUID);
+        return Objects.hashCode(id, name, version, description, userEntity, apiCategoryEntity, imageToken, shortName, isBanned, isApproved, isDeleted, isPrivate, count, uuid);
     }
 }

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Objects;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
 import java.sql.Timestamp;
 
 @Entity
@@ -36,7 +35,6 @@ public class UserEntity {
     @Column(name = "phone")
     private String phone;
 
-    @Email
     @Column(name = "email")
     private String email;
 
@@ -49,10 +47,17 @@ public class UserEntity {
     @Column(name = "note")
     private String note;
 
+    @Column(name = "uuid")
+    private String uuid;
+
     @JsonIgnore
     @JoinColumn(name = "role_id")
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     private UserRoleEntity userRole;
+
+    @OneToOne
+    @PrimaryKeyJoinColumn
+    private Individual individual;
 
     @JsonIgnore
     @Column(name = "aud_when_create")
@@ -174,6 +179,22 @@ public class UserEntity {
         this.note = note;
     }
 
+    public Individual getIndividual() {
+        return individual;
+    }
+
+    public void setIndividual(Individual individual) {
+        this.individual = individual;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -190,11 +211,13 @@ public class UserEntity {
                 Objects.equal(email, that.email) &&
                 Objects.equal(imageUrl, that.imageUrl) &&
                 Objects.equal(note, that.note) &&
-                Objects.equal(userRole, that.userRole);
+                Objects.equal(uuid, that.uuid) &&
+                Objects.equal(userRole, that.userRole) &&
+                Objects.equal(individual, that.individual);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, login, password, name, surname, patrName, phone, email, emailVerified, imageUrl, note, userRole);
+        return Objects.hashCode(id, login, password, name, surname, patrName, phone, email, emailVerified, imageUrl, note, uuid, userRole, individual);
     }
 }

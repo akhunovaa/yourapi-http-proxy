@@ -23,4 +23,9 @@
         <persistence strategy="localTempSwap" />
     </cache>
 
+    <cache name="subscription-data" maxEntriesLocalHeap="1000" maxEntriesLocalDisk="2000" eternal="false"
+        diskSpoolBufferSizeMB="100" timeToIdleSeconds="30" timeToLiveSeconds="60" memoryStoreEvictionPolicy="LFU" transactionalMode="off">
+        <persistence strategy="localTempSwap" />
+    </cache>
+
 </ehcache>

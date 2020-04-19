@@ -1,6 +1,10 @@
 package ru.yourapi.filter;
 
-import ru.yourapi.provider.JwtTokenProvider;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.servlet.HandlerExceptionResolver;
+import ru.yourapi.exception.InvalidUserApplicationSecretException;
+import ru.yourapi.exception.UserApplicationNotFoundException;
+import ru.yourapi.provider.UserApplicationSecretProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +28,10 @@ public class TokenAuthenticationFilter extends GenericFilterBean {
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenAuthenticationFilter.class);
 
     @Autowired
-    private JwtTokenProvider jwtTokenProvider;
+    private UserApplicationSecretProvider userApplicationSecretProvider;
+
+    @Autowired
+    private HandlerExceptionResolver resolver;
 
     @Value("${allow.origin}")
     private String origin = "false";
@@ -32,23 +39,27 @@ public class TokenAuthenticationFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         boolean allowOrigin = Boolean.valueOf(origin);
+        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
         try {
-            String token = jwtTokenProvider.resolveToken((HttpServletRequest) request);
-            if (token != null && jwtTokenProvider.validateToken(token)) {
-                Authentication auth = jwtTokenProvider.getAuthentication(token);
+            String secret = userApplicationSecretProvider.resolveSecret((HttpServletRequest) request);
+            if (secret != null && userApplicationSecretProvider.validateUserApplicationSecret(secret)) {
+                Authentication auth = userApplicationSecretProvider.getAuthentication(secret);
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
-        } catch (Exception ex) {
-            LOGGER.error("Could not set user authentication in security context", ex);
+            if (allowOrigin) {
+                HttpServletResponse res = (HttpServletResponse) response;
+                res.setHeader("Access-Control-Allow-Origin", "*");
+                res.setHeader("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE");
+                res.setHeader("Access-Control-Max-Age", "3600");
+                res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Content-Length, X-Requested-With");
+            }
+            chain.doFilter(request, response);
+        } catch (UserApplicationNotFoundException | InvalidUserApplicationSecretException exception) {
+            LOGGER.error("Could not set user authentication in security context", exception);
+            httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
+            resolver.resolveException(httpServletRequest, httpServletResponse, null, exception);
         }
-        if (allowOrigin) {
-            HttpServletResponse res = (HttpServletResponse) response;
-            res.setHeader("Access-Control-Allow-Origin", "*");
-            res.setHeader("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE");
-            res.setHeader("Access-Control-Max-Age", "3600");
-            res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Content-Length, X-Requested-With");
-        }
-        chain.doFilter(request, response);
     }
 
 }

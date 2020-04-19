@@ -28,6 +28,9 @@ import java.util.concurrent.Executor;
 @ComponentScan("ru.yourapi")
 public class ApplicationConfig {
 
+    private final static String PASSWORD_ALGORITHM = "PBEWithMD5AndDES";
+    private final static String DEFAULT_PASSWORD = "4071505";
+
     @Bean
     public RestOperations restTemplate() {
         return new RestTemplate();
@@ -66,9 +69,25 @@ public class ApplicationConfig {
     @Bean
     public static EnvironmentStringPBEConfig environmentVariablesConfiguration() {
         EnvironmentStringPBEConfig environmentStringPBEConfig = new EnvironmentStringPBEConfig();
-        environmentStringPBEConfig.setAlgorithm("PBEWithMD5AndDES");
+        environmentStringPBEConfig.setAlgorithm(PASSWORD_ALGORITHM);
         environmentStringPBEConfig.setPassword("710713748");
         return environmentStringPBEConfig;
+    }
+
+    @Bean
+    public EnvironmentStringPBEConfig stringDataEncryptionConfig() {
+        EnvironmentStringPBEConfig environmentStringPBEConfig = new EnvironmentStringPBEConfig();
+        environmentStringPBEConfig.setAlgorithm(PASSWORD_ALGORITHM);
+        environmentStringPBEConfig.setPassword(DEFAULT_PASSWORD);
+        return environmentStringPBEConfig;
+    }
+
+    @Bean
+    @DependsOn("stringDataEncryptionConfig")
+    public StandardPBEStringEncryptor stringEncrypt() {
+        StandardPBEStringEncryptor encrypt = new StandardPBEStringEncryptor();
+        encrypt.setConfig(stringDataEncryptionConfig());
+        return encrypt;
     }
 
     @Bean

@@ -4,8 +4,8 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
-    <changeSet id="1_user_api_data" failOnError="false" author="azat.akhunov@protonmail.com" runOnChange="true">
-        <createTable tableName="user_api_data" schemaName="public">
+    <changeSet id="1_api_usage_statistics" failOnError="false" author="azat.akhunov@protonmail.com" runOnChange="true">
+        <createTable tableName="api_usage_statistics" schemaName="public">
             <column autoIncrement="true" name="id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
