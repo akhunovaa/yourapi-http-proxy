@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,12 +43,13 @@ public class TokenAuthenticationFilter extends GenericFilterBean {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
         try {
-            String secret = userApplicationSecretProvider.resolveSecret((HttpServletRequest) request);
-            if (secret != null && userApplicationSecretProvider.validateUserApplicationSecret(secret)) {
-                Authentication auth = userApplicationSecretProvider.getAuthentication(secret);
-                SecurityContextHolder.getContext().setAuthentication(auth);
+            if (!httpServletRequest.getMethod().equalsIgnoreCase(HttpMethod.OPTIONS.name())){
+                String secret = userApplicationSecretProvider.resolveSecret((HttpServletRequest) request);
+                if (secret != null && userApplicationSecretProvider.validateUserApplicationSecret(secret)) {
+                    Authentication auth = userApplicationSecretProvider.getAuthentication(secret);
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                }
             }
-
             HttpServletResponse res = (HttpServletResponse) response;
             res.setHeader("Access-Control-Allow-Origin", "*");
             res.setHeader("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE");
