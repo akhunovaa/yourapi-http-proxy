@@ -46,7 +46,7 @@ public class UserApplicationSecretProvider {
     }
 
     public String resolveSecret(HttpServletRequest req) throws UserApplicationNotFoundException {
-        String userApplicationSecret = req.getHeader("X-YourAPI-key");
+        String userApplicationSecret = req.getHeader("X-YourAPI-Key");
         if (userApplicationSecret != null) {
             return userApplicationSecret;
         }else {
