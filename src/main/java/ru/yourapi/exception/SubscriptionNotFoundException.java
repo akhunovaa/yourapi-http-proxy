@@ -3,7 +3,7 @@ package ru.yourapi.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.NOT_FOUND)
+@ResponseStatus(HttpStatus.OK)
 public class SubscriptionNotFoundException extends RuntimeException {
 
     private final static String ERROR_MESSAGE_ENG = "API subscription not found";
