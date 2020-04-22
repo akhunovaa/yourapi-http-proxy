@@ -20,6 +20,7 @@ import ru.yourapi.dto.ApiPathParamDataDto;
 import ru.yourapi.dto.UserPrincipal;
 import ru.yourapi.exception.ApiDataNotFoundException;
 import ru.yourapi.exception.ApiPathNotFoundException;
+import ru.yourapi.exception.EmptyIdException;
 import ru.yourapi.model.HttpRequest;
 import ru.yourapi.service.ApiDataService;
 import ru.yourapi.service.AsyncLoggerService;
@@ -54,6 +55,9 @@ public class ProxyController extends AbstractController {
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal userPrincipal = (UserPrincipal) usernamePasswordAuthenticationToken.getPrincipal();
         String projectName = httpServletRequest.getHeader("X-Api-Identifier");
+        if (null == projectName){
+            throw new EmptyIdException("API project identifier not found");
+        }
         Long userId = userPrincipal.getId();
         String userLogin = userPrincipal.getLogin();
 
@@ -120,7 +124,9 @@ public class ProxyController extends AbstractController {
         String projectName = httpServletRequest.getHeader("X-Api-Identifier");
         Long userId = userPrincipal.getId();
         String userLogin = userPrincipal.getLogin();
-
+        if (null == projectName){
+            throw new EmptyIdException("API project identifier not found");
+        }
         ApiDataDto apiDataDto = apiDataService.getApiData(projectName);
 
         String restOfTheUrl = (String) httpServletRequest.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);

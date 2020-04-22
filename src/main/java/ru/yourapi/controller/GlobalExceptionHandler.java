@@ -51,9 +51,14 @@ public class GlobalExceptionHandler extends AbstractController {
     @ResponseBody
     public void handlerAccessDenied(HttpServletRequest request, HttpServletResponse response, Exception ex) {
         LOGGER.error("REST Error", ex);
-        String message = "Invalid X-YourAPI-Key";
+        String message;
+        String secretKey = request.getHeader("X-YourAPI-Key");
+        if (null == secretKey){
+            message = "Missing YourAPI application key. Go to https://yourapi.ru to learn how to get your API application key";
+        }else {
+            message  = "Invalid X-YourAPI-Key";
+        }
         String err = String.format("{\"success\":false,\"message\":\"%s\",\"timestamp\":%s}", message, new Date().getTime());
-
         response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
         try {
             response.getWriter().print(err);
