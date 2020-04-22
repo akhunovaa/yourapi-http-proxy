@@ -3,7 +3,7 @@ package ru.yourapi.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.OK)
+@ResponseStatus(HttpStatus.UNAUTHORIZED)
 public class UserApplicationNotFoundException extends Exception {
 
     private final static String ERROR_MESSAGE_ENG = "Missing YourAPI application key. Go to https://yourapi.ru to learn how to get your API application key";

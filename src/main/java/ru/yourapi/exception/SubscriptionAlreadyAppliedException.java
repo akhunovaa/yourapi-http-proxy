@@ -3,7 +3,7 @@ package ru.yourapi.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.OK)
+@ResponseStatus(HttpStatus.NOT_FOUND)
 public class SubscriptionAlreadyAppliedException extends RuntimeException {
 
     private final static String ERROR_MESSAGE_ENG = "API subscription already applied and not used up";

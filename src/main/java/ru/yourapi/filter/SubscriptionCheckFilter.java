@@ -22,6 +22,9 @@ import java.io.IOException;
 @Component
 public class SubscriptionCheckFilter extends GenericFilterBean {
 
+    private static final String API_SHORT_NAME_IDENTIFIER_HEADER_NAME = "X-Api-Identifier";
+    private static final String USER_APPLICATION_SECRET_KEY_HEADER_NAME = "X-YourAPI-Key";
+
     @Autowired
     private AsyncLoggerService asyncLoggerService;
 
@@ -36,17 +39,35 @@ public class SubscriptionCheckFilter extends GenericFilterBean {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
         response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-        String apiShortName = httpServletRequest.getHeader("X-Api-Identifier");
-        String userApplicationSecret = httpServletRequest.getHeader("X-YourAPI-key");
+        String apiShortName = resolveApiIdentifier(httpServletRequest);
+        String userApplicationSecret = resolveUserApplicationSecretKey(httpServletRequest);
         asyncLoggerService.asyncLogOfIncomingHttpRequest("Check subscription of project: {} with user application secret: {}", apiShortName, userApplicationSecret);
         try {
-            apiSubscribeService.subscribeToRequestedApiExists(userApplicationSecret, apiShortName);
+            if (null != apiShortName && null != userApplicationSecret){
+                apiSubscribeService.subscribeToRequestedApiExists(userApplicationSecret, apiShortName);
+            }
             chain.doFilter(request, response);
         } catch (ErrorSubscribeException exception) {
             httpServletResponse.setStatus(HttpStatus.NOT_FOUND.value());
             resolver.resolveException(httpServletRequest, httpServletResponse, null, exception);
         }
 
+    }
+
+    private String resolveApiIdentifier(HttpServletRequest request) {
+        String apiIdentifierName = request.getHeader(API_SHORT_NAME_IDENTIFIER_HEADER_NAME);
+        if (apiIdentifierName != null) {
+            return apiIdentifierName;
+        }
+        return null;
+    }
+
+    private String resolveUserApplicationSecretKey(HttpServletRequest request) {
+        String apiIdentifierName = request.getHeader(USER_APPLICATION_SECRET_KEY_HEADER_NAME);
+        if (apiIdentifierName != null) {
+            return apiIdentifierName;
+        }
+        return null;
     }
 
 }

@@ -23,6 +23,8 @@ import java.util.List;
 @Service
 public class UserApplicationSecretProvider {
 
+    private static final String USER_APPLICATION_SECRET_KEY_HEADER_NAME = "X-YourAPI-Key";
+
     @Autowired
     private StandardPBEStringEncryptor stringEncrypt;
 
@@ -46,12 +48,14 @@ public class UserApplicationSecretProvider {
     }
 
     public String resolveSecret(HttpServletRequest req) throws UserApplicationNotFoundException {
-        String userApplicationSecret = req.getHeader("X-YourAPI-Key");
+        String userApplicationSecret = req.getHeader(USER_APPLICATION_SECRET_KEY_HEADER_NAME);
         if (userApplicationSecret != null) {
             return userApplicationSecret;
-        }else {
-            throw new UserApplicationNotFoundException();
         }
+        return null;
+//        else {
+//            throw new UserApplicationNotFoundException();
+//        }
     }
 
     public boolean validateUserApplicationSecret(String secretText) throws InvalidUserApplicationSecretException {
