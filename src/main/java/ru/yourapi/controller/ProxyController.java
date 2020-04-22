@@ -23,6 +23,7 @@ import ru.yourapi.exception.ApiPathNotFoundException;
 import ru.yourapi.exception.EmptyIdException;
 import ru.yourapi.model.HttpRequest;
 import ru.yourapi.service.ApiDataService;
+import ru.yourapi.service.ApiSubscribeService;
 import ru.yourapi.service.AsyncLoggerService;
 import ru.yourapi.service.HttpService;
 import ru.yourapi.util.ClientInfoUtil;
@@ -42,6 +43,9 @@ public class ProxyController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyController.class);
 
+    private static final String API_SHORT_NAME_IDENTIFIER_HEADER_NAME = "X-Api-Identifier";
+    private static final String USER_APPLICATION_SECRET_KEY_HEADER_NAME = "X-YourAPI-Key";
+
     @Autowired
     private HttpService httpService;
     @Autowired
@@ -49,19 +53,22 @@ public class ProxyController extends AbstractController {
     @Autowired
     private ApiDataService apiDataService;
 
+    @Autowired
+    private ApiSubscribeService apiSubscribeService;
+
     @PreAuthorize("authenticated")
     @RequestMapping(value = "/**", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
     public void proxyServiceSyncGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal userPrincipal = (UserPrincipal) usernamePasswordAuthenticationToken.getPrincipal();
-        String projectName = httpServletRequest.getHeader("X-Api-Identifier");
-        if (null == projectName){
+        String apiShortName = resolveApiIdentifier(httpServletRequest);
+        String userApplicationSecret = resolveUserApplicationSecretKey(httpServletRequest);
+        if (null == apiShortName){
             throw new EmptyIdException("API project identifier not found");
         }
-        Long userId = userPrincipal.getId();
-        String userLogin = userPrincipal.getLogin();
+        apiSubscribeService.subscribeToRequestedApiExists(userApplicationSecret, apiShortName);
 
-        ApiDataDto apiDataDto = apiDataService.getApiData(projectName);
+        ApiDataDto apiDataDto = apiDataService.getApiData(apiShortName);
 
         String restOfTheUrl = (String) httpServletRequest.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         String[] pathParts = restOfTheUrl.split("/");
@@ -121,13 +128,15 @@ public class ProxyController extends AbstractController {
     public void proxyServiceSyncPost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal userPrincipal = (UserPrincipal) usernamePasswordAuthenticationToken.getPrincipal();
-        String projectName = httpServletRequest.getHeader("X-Api-Identifier");
-        Long userId = userPrincipal.getId();
-        String userLogin = userPrincipal.getLogin();
-        if (null == projectName){
+        String apiShortName = resolveApiIdentifier(httpServletRequest);
+        String userApplicationSecret = resolveUserApplicationSecretKey(httpServletRequest);
+
+        if (null == apiShortName){
             throw new EmptyIdException("API project identifier not found");
         }
-        ApiDataDto apiDataDto = apiDataService.getApiData(projectName);
+        apiSubscribeService.subscribeToRequestedApiExists(userApplicationSecret, apiShortName);
+
+        ApiDataDto apiDataDto = apiDataService.getApiData(apiShortName);
 
         String restOfTheUrl = (String) httpServletRequest.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         String[] pathParts = restOfTheUrl.split("/");
@@ -209,6 +218,23 @@ public class ProxyController extends AbstractController {
         HttpRequest httpRequest = new HttpRequest(httpGet, httpServletResponse);
         asyncLoggerService.asyncLogOfCustomMessage("Send sync GET request to the URL: {}", url);
         httpService.sendHttpApiRequestAsync(httpRequest);
+    }
+
+
+    private String resolveApiIdentifier(HttpServletRequest request) {
+        String apiIdentifierName = request.getHeader(API_SHORT_NAME_IDENTIFIER_HEADER_NAME);
+        if (apiIdentifierName != null) {
+            return apiIdentifierName;
+        }
+        return null;
+    }
+
+    private String resolveUserApplicationSecretKey(HttpServletRequest request) {
+        String apiIdentifierName = request.getHeader(USER_APPLICATION_SECRET_KEY_HEADER_NAME);
+        if (apiIdentifierName != null) {
+            return apiIdentifierName;
+        }
+        return null;
     }
 
 
