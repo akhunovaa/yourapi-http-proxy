@@ -6,5 +6,5 @@ import java.util.Optional;
 
 public interface ApiSubscribeDAO {
 
-    Optional<ApiSubscriptionDataEntity> findAppliedSubscription(String userApplicationSecret, String apiShortName);
+    Optional<ApiSubscriptionDataEntity> findAppliedSubscription(String userApplicationSecret, String apiShortName, Long userId);
 }

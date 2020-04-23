@@ -3,11 +3,15 @@ package ru.yourapi.repository.impl;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.Subqueries;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 import ru.yourapi.entity.ApiSubscriptionDataEntity;
+import ru.yourapi.entity.UserApplicationSecretEntity;
 import ru.yourapi.repository.ApiSubscribeDAO;
 
 import java.util.Optional;
@@ -21,9 +25,15 @@ public class ApiSubscribeDAOImpl implements ApiSubscribeDAO {
 
     @Cacheable(value = "subscription-data", key = "#userApplicationSecret + #apiShortName")
     @Override
-    public Optional<ApiSubscriptionDataEntity> findAppliedSubscription(String userApplicationSecret, String apiShortName) {
+    public Optional<ApiSubscriptionDataEntity> findAppliedSubscription(String userApplicationSecret, String apiShortName, Long userId) {
         ApiSubscriptionDataEntity apiSubscriptionDataEntity;
         Session session = sessionFactory.openSession();
+
+        DetachedCriteria userDetachedCriteria = DetachedCriteria.forClass(UserApplicationSecretEntity.class);
+        userDetachedCriteria.createAlias("user", "user");
+        userDetachedCriteria.add(Restrictions.eq("user.id", userId));
+        userDetachedCriteria.setProjection(Projections.property("value"));
+
         Criteria criteria = session.createCriteria(ApiSubscriptionDataEntity.class);
         criteria.createAlias("apiSubscriptionTypeEntity.apiDataEntity", "api");
         criteria.add(Restrictions.eq("banned", false));
@@ -32,6 +42,7 @@ public class ApiSubscribeDAOImpl implements ApiSubscribeDAO {
         criteria.add(Restrictions.eq("api.shortName", apiShortName));
         criteria.add(Restrictions.eq("api.isDeleted", Boolean.FALSE));
         criteria.add(Restrictions.gt("availableBalance", 0L));
+        criteria.add(Subqueries.propertyIn("userApplicationSecret", userDetachedCriteria));
         criteria.setMaxResults(1);
         apiSubscriptionDataEntity = (ApiSubscriptionDataEntity) criteria.uniqueResult();
         session.close();

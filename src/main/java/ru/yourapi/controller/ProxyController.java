@@ -61,12 +61,13 @@ public class ProxyController extends AbstractController {
     public void proxyServiceSyncGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal userPrincipal = (UserPrincipal) usernamePasswordAuthenticationToken.getPrincipal();
+        Long userId = userPrincipal.getId();
         String apiShortName = resolveApiIdentifier(httpServletRequest);
         String userApplicationSecret = resolveUserApplicationSecretKey(httpServletRequest);
         if (null == apiShortName){
             throw new EmptyIdException("API project identifier not found");
         }
-        apiSubscribeService.subscribeToRequestedApiExists(userApplicationSecret, apiShortName);
+        apiSubscribeService.subscribeToRequestedApiExists(userApplicationSecret, apiShortName, userId);
 
         ApiDataDto apiDataDto = apiDataService.getApiData(apiShortName);
 
@@ -128,13 +129,14 @@ public class ProxyController extends AbstractController {
     public void proxyServiceSyncPost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         UserPrincipal userPrincipal = (UserPrincipal) usernamePasswordAuthenticationToken.getPrincipal();
+        Long userId = userPrincipal.getId();
         String apiShortName = resolveApiIdentifier(httpServletRequest);
         String userApplicationSecret = resolveUserApplicationSecretKey(httpServletRequest);
 
         if (null == apiShortName){
             throw new EmptyIdException("API project identifier not found");
         }
-        apiSubscribeService.subscribeToRequestedApiExists(userApplicationSecret, apiShortName);
+        apiSubscribeService.subscribeToRequestedApiExists(userApplicationSecret, apiShortName, userId);
 
         ApiDataDto apiDataDto = apiDataService.getApiData(apiShortName);
 

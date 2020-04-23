@@ -13,8 +13,8 @@ public class ApiSubscribeServiceImpl implements ApiSubscribeService {
     private ApiSubscribeDAO apiSubscribeDAO;
 
     @Override
-    public void subscribeToRequestedApiExists(String userApplicationSecret, String apiShortName) {
-        apiSubscribeDAO.findAppliedSubscription(userApplicationSecret, apiShortName).orElseThrow(ErrorSubscribeException::new);
+    public void subscribeToRequestedApiExists(String userApplicationSecret, String apiShortName, Long userId) {
+        apiSubscribeDAO.findAppliedSubscription(userApplicationSecret, apiShortName, userId).orElseThrow(ErrorSubscribeException::new);
     }
 
 }
