@@ -38,7 +38,6 @@ public class ApiSubscribeDAOImpl implements ApiSubscribeDAO {
         criteria.createAlias("apiSubscriptionTypeEntity.apiDataEntity", "api");
         criteria.add(Restrictions.eq("banned", false));
         criteria.add(Restrictions.eq("deleted", false));
-        criteria.add(Restrictions.eq("userApplicationSecret", userApplicationSecret));
         criteria.add(Restrictions.eq("api.shortName", apiShortName));
         criteria.add(Restrictions.eq("api.isDeleted", Boolean.FALSE));
         criteria.add(Restrictions.gt("availableBalance", 0L));
