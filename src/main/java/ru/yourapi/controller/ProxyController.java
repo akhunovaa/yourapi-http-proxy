@@ -11,22 +11,19 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.HandlerMapping;
 import ru.yourapi.dto.ApiDataDto;
 import ru.yourapi.dto.ApiPathDataDto;
 import ru.yourapi.dto.ApiPathParamDataDto;
 import ru.yourapi.dto.UserPrincipal;
+import ru.yourapi.entity.ApiSubscriptionDataEntity;
 import ru.yourapi.exception.ApiDataNotFoundException;
 import ru.yourapi.exception.ApiPathNotFoundException;
 import ru.yourapi.exception.EmptyIdException;
-import ru.yourapi.model.HttpRequest;
 import ru.yourapi.service.ApiDataService;
 import ru.yourapi.service.ApiSubscribeService;
-import ru.yourapi.service.AsyncLoggerService;
 import ru.yourapi.service.HttpService;
-import ru.yourapi.util.ClientInfoUtil;
 import ru.yourapi.util.QueryUtil;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,11 +42,15 @@ public class ProxyController extends AbstractController {
 
     private static final String API_SHORT_NAME_IDENTIFIER_HEADER_NAME = "X-Api-Identifier";
     private static final String USER_APPLICATION_SECRET_KEY_HEADER_NAME = "X-YourAPI-Key";
+    private static final String FORWARDED_FOR_HEADER_NAME = "X-Forwarded-For";
+    private static final String REAL_IP_HEADER_NAME = "X-Real-IP";
+    private static final String HOST_HEADER_NAME = "Host";
+    private static final String FORWARDED_PROTO_HEADER_NAME = "X-Forwarded-Proto";
+
 
     @Autowired
     private HttpService httpService;
-    @Autowired
-    private AsyncLoggerService asyncLoggerService;
+
     @Autowired
     private ApiDataService apiDataService;
 
@@ -64,10 +65,14 @@ public class ProxyController extends AbstractController {
         Long userId = userPrincipal.getId();
         String apiShortName = resolveApiIdentifier(httpServletRequest);
         String userApplicationSecret = resolveUserApplicationSecretKey(httpServletRequest);
+        String xForwardedFor = resolveForwardedForIp(httpServletRequest);
+        String xRealIP = resolveRealIp(httpServletRequest);
+        String host = resolveHost(httpServletRequest);
+        String forwardedProto = resolveProto(httpServletRequest);
         if (null == apiShortName){
             throw new EmptyIdException("API project identifier not found");
         }
-        apiSubscribeService.subscribeToRequestedApiExists(userApplicationSecret, apiShortName, userId);
+        ApiSubscriptionDataEntity apiSubscriptionDataEntity = apiSubscribeService.subscribeToRequestedApiExists(userApplicationSecret, apiShortName, userId);
 
         ApiDataDto apiDataDto = apiDataService.getApiData(apiShortName);
 
@@ -117,7 +122,7 @@ public class ProxyController extends AbstractController {
         StringBuilder fullUrlBuilder = new StringBuilder();
         fullUrlBuilder.append(serverUrl).append(restOfTheUrl).append("?").append(httpServletRequest.getQueryString());
 
-        HttpGet httpGet = configuredHttpGet(fullUrlBuilder.toString(), null);
+        HttpGet httpGet = configuredHttpGet(fullUrlBuilder.toString(), null, apiDataDto, apiSubscriptionDataEntity, userPrincipal, xForwardedFor, xRealIP, host, forwardedProto);
         asyncLoggerService.asyncLogOfCustomMessage("Send sync GET request to the URL: {}", fullUrlBuilder.toString());
         byte[] response = httpService.sendHttpRequest(httpGet);
         asyncLoggerService.asyncLogOfCustomMessage("Send sync GET request to the URL with response: {}", new String(response, StandardCharsets.UTF_8));
@@ -132,11 +137,14 @@ public class ProxyController extends AbstractController {
         Long userId = userPrincipal.getId();
         String apiShortName = resolveApiIdentifier(httpServletRequest);
         String userApplicationSecret = resolveUserApplicationSecretKey(httpServletRequest);
-
+        String xForwardedFor = resolveForwardedForIp(httpServletRequest);
+        String xRealIP = resolveRealIp(httpServletRequest);
+        String host = resolveHost(httpServletRequest);
+        String forwardedProto = resolveProto(httpServletRequest);
         if (null == apiShortName){
             throw new EmptyIdException("API project identifier not found");
         }
-        apiSubscribeService.subscribeToRequestedApiExists(userApplicationSecret, apiShortName, userId);
+        ApiSubscriptionDataEntity apiSubscriptionDataEntity = apiSubscribeService.subscribeToRequestedApiExists(userApplicationSecret, apiShortName, userId);
 
         ApiDataDto apiDataDto = apiDataService.getApiData(apiShortName);
 
@@ -149,7 +157,7 @@ public class ProxyController extends AbstractController {
 
         List<ApiPathDataDto> apiDataDtoApiPathDataDtoList = apiDataDto.getApiPathDataDtoList();
         for (ApiPathDataDto apiPathDataDto : apiDataDtoApiPathDataDtoList) {
-            if (apiPathDataDto.getType().equalsIgnoreCase("GET")) {
+            if (apiPathDataDto.getType().equalsIgnoreCase("POST")) {
                 List<ApiPathParamDataDto> apiPathParamDataDtoList = apiPathDataDto.getApiPathParamDataList();
                 for (ApiPathParamDataDto apiPathParamDataDto : apiPathParamDataDtoList) {
                     String pathParameterName = apiPathParamDataDto.getName();
@@ -199,29 +207,11 @@ public class ProxyController extends AbstractController {
             LOGGER.error("Body get error", e);
         }
         byte[] byteArray = buffer.toByteArray();
-        HttpPost httpPost = configuredHttpPost(byteArray, fullUrlBuilder.toString(), null);
+        HttpPost httpPost = configuredHttpPost(byteArray, fullUrlBuilder.toString(), null, apiDataDto, apiSubscriptionDataEntity, userPrincipal, xForwardedFor, xRealIP, host, forwardedProto);
         asyncLoggerService.asyncLogOfCustomMessage("Send sync POST request to the URL: {}", fullUrlBuilder.toString());
         byte[] response = httpService.sendHttpRequest(httpPost);
         returnJsonString(new String(response, StandardCharsets.UTF_8), httpServletResponse);
     }
-
-    @RequestMapping(value = "/async", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
-    public void proxyServiceAsync(@RequestParam(value = "url") String url, @RequestParam(value = "cookies", required = false) String cookies, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-        String clientBrowser = ClientInfoUtil.getClientBrowser(httpServletRequest);
-        String clientOs = ClientInfoUtil.getClientOS(httpServletRequest);
-        String clientIp = ClientInfoUtil.getClientIpAddr(httpServletRequest);
-        String projectName = httpServletRequest.getHeader("X-Api-Identifier");
-        String xRealIp = httpServletRequest.getHeader("X-Real-IP");
-        String xForwardedFor = httpServletRequest.getHeader("X-Forwarded-For");
-        String host = httpServletRequest.getHeader("Host");
-        String xForwardedProto = httpServletRequest.getHeader("X-Forwarded-Proto");
-        asyncLoggerService.asyncLogOfIncomingHttpRequest("Request GET from IP: {} OS: {} User-Agent: {} X-Real-IP: {} X-Forwarded-For: {} Host: {} X-Forwarded-Proto: {}", clientBrowser, clientOs, clientIp, projectName, xRealIp, xForwardedFor, host, xForwardedProto);
-        HttpGet httpGet = configuredHttpGet(url, cookies);
-        HttpRequest httpRequest = new HttpRequest(httpGet, httpServletResponse);
-        asyncLoggerService.asyncLogOfCustomMessage("Send sync GET request to the URL: {}", url);
-        httpService.sendHttpApiRequestAsync(httpRequest);
-    }
-
 
     private String resolveApiIdentifier(HttpServletRequest request) {
         String apiIdentifierName = request.getHeader(API_SHORT_NAME_IDENTIFIER_HEADER_NAME);
@@ -233,6 +223,38 @@ public class ProxyController extends AbstractController {
 
     private String resolveUserApplicationSecretKey(HttpServletRequest request) {
         String apiIdentifierName = request.getHeader(USER_APPLICATION_SECRET_KEY_HEADER_NAME);
+        if (apiIdentifierName != null) {
+            return apiIdentifierName;
+        }
+        return null;
+    }
+
+    private String resolveForwardedForIp(HttpServletRequest request) {
+        String apiIdentifierName = request.getHeader(FORWARDED_FOR_HEADER_NAME);
+        if (apiIdentifierName != null) {
+            return apiIdentifierName;
+        }
+        return null;
+    }
+
+    private String resolveRealIp(HttpServletRequest request) {
+        String apiIdentifierName = request.getHeader(REAL_IP_HEADER_NAME);
+        if (apiIdentifierName != null) {
+            return apiIdentifierName;
+        }
+        return null;
+    }
+
+    private String resolveHost(HttpServletRequest request) {
+        String apiIdentifierName = request.getHeader(HOST_HEADER_NAME);
+        if (apiIdentifierName != null) {
+            return apiIdentifierName;
+        }
+        return null;
+    }
+
+    private String resolveProto(HttpServletRequest request) {
+        String apiIdentifierName = request.getHeader(FORWARDED_PROTO_HEADER_NAME);
         if (apiIdentifierName != null) {
             return apiIdentifierName;
         }

@@ -34,9 +34,6 @@ public class AdditionalLoggingFilter extends GenericFilterBean {
         String secret = httpServletRequest.getHeader("x-yourapi-key");
         String xForwardedProto = httpServletRequest.getHeader("X-Forwarded-Proto");
         asyncLoggerService.asyncLogOfIncomingHttpRequest("Request GET from IP: {} OS: {} User-Agent: {} X-Real-IP: {} X-Forwarded-For: {} Host: {} X-Forwarded-Proto: {} x-yourapi-key: {}", clientBrowser, clientOs, clientIp, projectName, xRealIp, xForwardedFor, host, xForwardedProto, secret);
-        String headerApply = clientIp + ", " + xForwardedFor + ", " + xRealIp;
-        httpServletResponse.setHeader("x-forwarded-for", headerApply);
-        httpServletResponse.setHeader("x-real-ip", xRealIp);
         chain.doFilter(httpServletRequest, httpServletResponse);
     }
 

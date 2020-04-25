@@ -155,4 +155,21 @@ public class ApiSubscriptionDataEntity implements Serializable {
     public int hashCode() {
         return Objects.hashCode(id, value, userApplicationSecret, availableLimit, availableBalance, apiSubscriptionTypeEntity, note, banned, deleted, audWhenCreate);
     }
+
+    @Override
+    public String toString() {
+        return "ApiSubscriptionDataEntity{" +
+                "id=" + id +
+                ", value='" + value + '\'' +
+                ", userApplicationSecret='" + userApplicationSecret + '\'' +
+                ", availableLimit=" + availableLimit +
+                ", availableBalance=" + availableBalance +
+                ", apiSubscriptionTypeEntity=" + apiSubscriptionTypeEntity +
+                ", note='" + note + '\'' +
+                ", banned=" + banned +
+                ", deleted=" + deleted +
+                ", audWhenCreate=" + audWhenCreate +
+                ", audWhenUpdate=" + audWhenUpdate +
+                '}';
+    }
 }

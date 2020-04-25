@@ -14,12 +14,17 @@ public class AsyncLoggerServiceImpl implements AsyncLoggerService {
     @Async
     @Override
     public void asyncLogOfIncomingHttpRequest(String message, String... logMessage) {
-        LOGGER.info(message, logMessage);
+        LOGGER.info(message, (Object[]) logMessage);
     }
 
     @Async
     @Override
     public void asyncLogOfCustomMessage(String message, String logMessage) {
+        LOGGER.info(message, logMessage);
+    }
+
+    @Override
+    public void asyncLogOfCustomMessage(String message, Object... logMessage) {
         LOGGER.info(message, logMessage);
     }
 }

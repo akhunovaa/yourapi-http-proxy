@@ -1,7 +1,9 @@
 package ru.yourapi.service;
 
+import ru.yourapi.entity.ApiSubscriptionDataEntity;
+
 public interface ApiSubscribeService {
 
-    void subscribeToRequestedApiExists(String userApplicationSecret, String apiShortName, Long userId);
+    ApiSubscriptionDataEntity subscribeToRequestedApiExists(String userApplicationSecret, String apiShortName, Long userId);
 
 }

@@ -37,6 +37,8 @@ import ru.yourapi.listener.CustomAuthenticationEntryPoint;
 )
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    private final static String X_YOURAPI_VERSION = "YourAPI-0.1";
+
     @Autowired
     private AccessDeniedHandler accessDeniedHandler;
     @Autowired
@@ -81,7 +83,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         //@formatter:off
         http.headers()
-                .addHeaderWriter(new StaticHeadersWriter("Server", "YourAPI-0.1"))
+                .addHeaderWriter(new StaticHeadersWriter("Server", X_YOURAPI_VERSION))
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
