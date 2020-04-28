@@ -27,16 +27,16 @@ public class ApiSubscribeDAOImpl implements ApiSubscribeDAO {
     @Autowired
     private SessionFactory sessionFactory;
 
-    @Cacheable(value = "subscription-data", key = "#userApplicationSecret + #apiShortName")
+    @Cacheable(value = "subscription-data", key = "#userApplicationSecret + #apiShortName + #userId")
     @Override
     public Optional<ApiSubscriptionDataEntity> findAppliedSubscription(String userApplicationSecret, String apiShortName, Long userId) {
         ApiSubscriptionDataEntity apiSubscriptionDataEntity;
         Session session = sessionFactory.openSession();
 
-        DetachedCriteria userDetachedCriteria = DetachedCriteria.forClass(UserApplicationSecretEntity.class);
-        userDetachedCriteria.createAlias("user", "user");
-        userDetachedCriteria.add(Restrictions.eq("user.id", userId));
-        userDetachedCriteria.setProjection(Projections.property("value"));
+//        DetachedCriteria userDetachedCriteria = DetachedCriteria.forClass(UserApplicationSecretEntity.class);
+//        userDetachedCriteria.createAlias("user", "user");
+//        userDetachedCriteria.add(Restrictions.eq("user.id", userId));
+//        userDetachedCriteria.setProjection(Projections.property("value"));
 
         Criteria criteria = session.createCriteria(ApiSubscriptionDataEntity.class);
         criteria.createAlias("apiSubscriptionTypeEntity.apiDataEntity", "api");
@@ -45,7 +45,11 @@ public class ApiSubscribeDAOImpl implements ApiSubscribeDAO {
         criteria.add(Restrictions.eq("api.shortName", apiShortName));
         criteria.add(Restrictions.eq("api.isDeleted", Boolean.FALSE));
         criteria.add(Restrictions.gt("availableBalance", 0L));
-        criteria.add(Subqueries.propertyIn("userApplicationSecret", userDetachedCriteria));
+
+        criteria.add(Restrictions.eq("userApplicationSecret", userApplicationSecret));
+
+//        criteria.add(Subqueries.propertyIn("userApplicationSecret", userDetachedCriteria));
+
         criteria.setMaxResults(1);
         apiSubscriptionDataEntity = (ApiSubscriptionDataEntity) criteria.uniqueResult();
         session.close();
