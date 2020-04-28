@@ -6,4 +6,6 @@ public interface ApiSubscribeService {
 
     ApiSubscriptionDataEntity subscribeToRequestedApiExists(String userApplicationSecret, String apiShortName, Long userId);
 
+    void subscribeUseActionSave(ApiSubscriptionDataEntity apiSubscriptionDataEntity);
+
 }

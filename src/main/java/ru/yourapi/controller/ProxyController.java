@@ -126,6 +126,7 @@ public class ProxyController extends AbstractController {
         asyncLoggerService.asyncLogOfCustomMessage("Send sync GET request to the URL: {}", fullUrlBuilder.toString());
         byte[] response = httpService.sendHttpRequest(httpGet);
         asyncLoggerService.asyncLogOfCustomMessage("Send sync GET request to the URL with response: {}", new String(response, StandardCharsets.UTF_8));
+        apiSubscribeService.subscribeUseActionSave(apiSubscriptionDataEntity);
         returnJsonString(new String(response, StandardCharsets.UTF_8), httpServletResponse);
     }
 
@@ -209,6 +210,7 @@ public class ProxyController extends AbstractController {
         byte[] byteArray = buffer.toByteArray();
         HttpPost httpPost = configuredHttpPost(byteArray, fullUrlBuilder.toString(), null, apiDataDto, apiSubscriptionDataEntity, userPrincipal, xForwardedFor, xRealIP, host, forwardedProto);
         asyncLoggerService.asyncLogOfCustomMessage("Send sync POST request to the URL: {}", fullUrlBuilder.toString());
+        apiSubscribeService.subscribeUseActionSave(apiSubscriptionDataEntity);
         byte[] response = httpService.sendHttpRequest(httpPost);
         returnJsonString(new String(response, StandardCharsets.UTF_8), httpServletResponse);
     }

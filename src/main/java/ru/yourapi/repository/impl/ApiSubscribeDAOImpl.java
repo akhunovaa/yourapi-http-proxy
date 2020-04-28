@@ -7,6 +7,8 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
@@ -19,6 +21,8 @@ import java.util.Optional;
 @SuppressWarnings({"deprecation"})
 @Repository
 public class ApiSubscribeDAOImpl implements ApiSubscribeDAO {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApiSubscribeDAO.class);
 
     @Autowired
     private SessionFactory sessionFactory;
@@ -46,5 +50,14 @@ public class ApiSubscribeDAOImpl implements ApiSubscribeDAO {
         apiSubscriptionDataEntity = (ApiSubscriptionDataEntity) criteria.uniqueResult();
         session.close();
         return Optional.ofNullable(apiSubscriptionDataEntity);
+    }
+
+    @Override
+    public void subscriptionUpdate(ApiSubscriptionDataEntity apiSubscriptionDataEntity) {
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+        session.update(apiSubscriptionDataEntity);
+        session.getTransaction().commit();
+        session.close();
     }
 }
