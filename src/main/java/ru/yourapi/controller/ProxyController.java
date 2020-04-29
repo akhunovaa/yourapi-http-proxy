@@ -77,46 +77,47 @@ public class ProxyController extends AbstractController {
         ApiDataDto apiDataDto = apiDataService.getApiData(apiShortName);
 
         String restOfTheUrl = (String) httpServletRequest.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        String[] pathParts = restOfTheUrl.split("/");
+//        String[] pathParts = restOfTheUrl.split("/");
 
-        Map<String, String[]> params = QueryUtil.getQueryParameters(httpServletRequest);
-        int pathIdx = 1;
-        StringBuilder restPath = new StringBuilder();
+//        Map<String, String[]> params = QueryUtil.getQueryParameters(httpServletRequest);
+//        int pathIdx = 1;
+//        StringBuilder restPath = new StringBuilder();
 
-        List<ApiPathDataDto> apiDataDtoApiPathDataDtoList = apiDataDto.getApiPathDataDtoList();
-        for (ApiPathDataDto apiPathDataDto : apiDataDtoApiPathDataDtoList) {
-            if (apiPathDataDto.getType().equalsIgnoreCase("GET")) {
-                List<ApiPathParamDataDto> apiPathParamDataDtoList = apiPathDataDto.getApiPathParamDataList();
-                for (ApiPathParamDataDto apiPathParamDataDto : apiPathParamDataDtoList) {
-                    String pathParameterName = apiPathParamDataDto.getName();
-                    if (apiPathParamDataDto.getInput().equals("path") && pathParts.length > pathIdx) {
-                        params.put(pathParameterName, new String[]{pathParts[pathIdx]});
-                        restPath.append("/{").append(apiPathParamDataDto.getName()).append("}");
-                        pathIdx++;
-                        if (pathParts.length > pathIdx) {
-                            restPath.append("/").append(pathParts[pathIdx]);
-                        }
-                    }
-                }
-            }
-        }
+//        List<ApiPathDataDto> apiDataDtoApiPathDataDtoList = apiDataDto.getApiPathDataDtoList();
+//        for (ApiPathDataDto apiPathDataDto : apiDataDtoApiPathDataDtoList) {
+//            if (apiPathDataDto.getType().equalsIgnoreCase("GET")) {
+//                List<ApiPathParamDataDto> apiPathParamDataDtoList = apiPathDataDto.getApiPathParamDataList();
+//                for (ApiPathParamDataDto apiPathParamDataDto : apiPathParamDataDtoList) {
+//                    String pathParameterName = apiPathParamDataDto.getName();
+//                    if (apiPathParamDataDto.getInput().equals("path") && pathParts.length > pathIdx) {
+//                            restPath.append("/").append(apiPathParamDataDto.getName());
+//                        params.put(pathParameterName, new String[]{pathParts[pathIdx]});
+//                        restPath.append("/{").append(apiPathParamDataDto.getName()).append("}");
+//                        pathIdx++;
+//                        if (pathParts.length > pathIdx) {
+//                            restPath.append("/").append(pathParts[pathIdx]);
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
-        String[] splittedRestPath = restPath.toString().split("/");
-        for (int i = 1; i < splittedRestPath.length; i++) {
-            String s = splittedRestPath[i];
-            if (!s.startsWith("{") && !s.endsWith("}")) {
-                if (pathParts[i].equalsIgnoreCase(s)) {
-                    throw new ApiPathNotFoundException();
-                }
-            }
-        }
+//        String[] splittedRestPath = restPath.toString().split("/");
+//        for (int i = 1; i < splittedRestPath.length; i++) {
+//            String s = splittedRestPath[i];
+//            if (!s.startsWith("{") && !s.endsWith("}")) {
+//                if (pathParts[i].equalsIgnoreCase(s)) {
+//                    throw new ApiPathNotFoundException();
+//                }
+//            }
+//        }
 
-        if (pathIdx == 1) {
+
             apiDataDto.getApiPathDataDtoList().parallelStream()
-                    .filter(apiPathDataDto -> restOfTheUrl.trim().equalsIgnoreCase(apiPathDataDto.getPath()))
+                    .filter(apiPathDataDto -> restOfTheUrl.trim().contains(apiPathDataDto.getPath()))
                     .filter(apiPathDataDto -> apiPathDataDto.getType().equalsIgnoreCase("GET"))
                     .findAny().orElseThrow(() -> new ApiDataNotFoundException("API path not found"));
-        }
+
 
         String serverUrl = apiDataDto.getApiServerDataDto().getUrl();
         StringBuilder fullUrlBuilder = new StringBuilder();
@@ -150,46 +151,46 @@ public class ProxyController extends AbstractController {
         ApiDataDto apiDataDto = apiDataService.getApiData(apiShortName);
 
         String restOfTheUrl = (String) httpServletRequest.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        String[] pathParts = restOfTheUrl.split("/");
+//        String[] pathParts = restOfTheUrl.split("/");
+//
+//        Map<String, String[]> params = QueryUtil.getQueryParameters(httpServletRequest);
+//        int pathIdx = 1;
+//        StringBuilder restPath = new StringBuilder();
+//
+//        List<ApiPathDataDto> apiDataDtoApiPathDataDtoList = apiDataDto.getApiPathDataDtoList();
+//        for (ApiPathDataDto apiPathDataDto : apiDataDtoApiPathDataDtoList) {
+//            if (apiPathDataDto.getType().equalsIgnoreCase("POST")) {
+//                List<ApiPathParamDataDto> apiPathParamDataDtoList = apiPathDataDto.getApiPathParamDataList();
+//                for (ApiPathParamDataDto apiPathParamDataDto : apiPathParamDataDtoList) {
+//                    String pathParameterName = apiPathParamDataDto.getName();
+//                    if (apiPathParamDataDto.getInput().equals("path") && pathParts.length > pathIdx) {
+//                        params.put(pathParameterName, new String[]{pathParts[pathIdx]});
+//                        restPath.append("/{").append(apiPathParamDataDto.getName()).append("}");
+//                        pathIdx++;
+//                        if (pathParts.length > pathIdx) {
+//                            restPath.append("/").append(pathParts[pathIdx]);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//
+//        String[] splittedRestPath = restPath.toString().split("/");
+//        for (int i = 1; i < splittedRestPath.length; i++) {
+//            String s = splittedRestPath[i];
+//            if (!s.startsWith("{") && !s.endsWith("}")) {
+//                if (pathParts[i].equalsIgnoreCase(s)) {
+//                    throw new ApiPathNotFoundException();
+//                }
+//            }
+//        }
 
-        Map<String, String[]> params = QueryUtil.getQueryParameters(httpServletRequest);
-        int pathIdx = 1;
-        StringBuilder restPath = new StringBuilder();
 
-        List<ApiPathDataDto> apiDataDtoApiPathDataDtoList = apiDataDto.getApiPathDataDtoList();
-        for (ApiPathDataDto apiPathDataDto : apiDataDtoApiPathDataDtoList) {
-            if (apiPathDataDto.getType().equalsIgnoreCase("POST")) {
-                List<ApiPathParamDataDto> apiPathParamDataDtoList = apiPathDataDto.getApiPathParamDataList();
-                for (ApiPathParamDataDto apiPathParamDataDto : apiPathParamDataDtoList) {
-                    String pathParameterName = apiPathParamDataDto.getName();
-                    if (apiPathParamDataDto.getInput().equals("path") && pathParts.length > pathIdx) {
-                        params.put(pathParameterName, new String[]{pathParts[pathIdx]});
-                        restPath.append("/{").append(apiPathParamDataDto.getName()).append("}");
-                        pathIdx++;
-                        if (pathParts.length > pathIdx) {
-                            restPath.append("/").append(pathParts[pathIdx]);
-                        }
-                    }
-                }
-            }
-        }
-
-        String[] splittedRestPath = restPath.toString().split("/");
-        for (int i = 1; i < splittedRestPath.length; i++) {
-            String s = splittedRestPath[i];
-            if (!s.startsWith("{") && !s.endsWith("}")) {
-                if (pathParts[i].equalsIgnoreCase(s)) {
-                    throw new ApiPathNotFoundException();
-                }
-            }
-        }
-
-        if (pathIdx == 1) {
             apiDataDto.getApiPathDataDtoList().parallelStream()
-                    .filter(apiPathDataDto -> restOfTheUrl.trim().equalsIgnoreCase(apiPathDataDto.getPath()))
+                    .filter(apiPathDataDto -> restOfTheUrl.trim().contains(apiPathDataDto.getPath()))
                     .filter(apiPathDataDto -> apiPathDataDto.getType().equalsIgnoreCase("POST"))
                     .findAny().orElseThrow(() -> new ApiDataNotFoundException("API path not found"));
-        }
+
 
 
         String serverUrl = apiDataDto.getApiServerDataDto().getUrl();
