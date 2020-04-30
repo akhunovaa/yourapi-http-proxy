@@ -50,7 +50,7 @@ public class CachingConfig extends CachingConfigurerSupport {
     public RedisCacheManager cacheManager() {
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
         RedisCacheConfiguration defaultCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
-                .disableCachingNullValues().entryTtl(Duration.ofSeconds(DEFAULT_CACHE_EXPIRATION))
+                .entryTtl(Duration.ofSeconds(DEFAULT_CACHE_EXPIRATION))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
         defaultCacheConfiguration.usePrefix();
         cacheConfigurations.put("api-data", defaultCacheConfiguration.entryTtl(Duration.ofSeconds(30)));
