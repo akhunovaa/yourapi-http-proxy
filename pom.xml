@@ -50,7 +50,10 @@
         <slf4j.version>1.7.25</slf4j.version>
         <jasyp.version>1.7</jasyp.version>
         <spring-kafka.version>2.3.3.RELEASE</spring-kafka.version>
-        <ehcache.version>2.10.6</ehcache.version>
+        <!--<ehcache.version>2.10.6</ehcache.version>-->
+
+        <spring-data-redis.version>2.2.2.RELEASE</spring-data-redis.version>
+        <jedis.version>3.1.0</jedis.version>
     </properties>
 
     <profiles>
@@ -449,16 +452,32 @@
             <version>${jackson.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-            <version>${ehcache.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>net.sf.ehcache</groupId>-->
+            <!--<artifactId>ehcache</artifactId>-->
+            <!--<version>${ehcache.version}</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
             <version>${spring.version}</version>
+        </dependency>
+
+        <!--Spring Data Redis-->
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-redis</artifactId>
+            <version>${spring-data-redis.version}</version>
+        </dependency>
+
+        <!--Jedis is a blazingly small and sane Redis java client-->
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <type>jar</type>
+            <scope>compile</scope>
+            <version>${jedis.version}</version>
         </dependency>
 
     </dependencies>
