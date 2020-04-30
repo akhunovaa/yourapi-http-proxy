@@ -3,6 +3,7 @@ package ru.yourapi.service.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import ru.yourapi.entity.ApiSubscriptionDataEntity;
@@ -19,6 +20,7 @@ public class ApiSubscribeServiceImpl implements ApiSubscribeService {
     private ApiSubscribeDAO apiSubscribeDAO;
 
     @Override
+//    @Cacheable(value = "subscription-data", key = "#userApplicationSecret")
     public ApiSubscriptionDataEntity subscribeToRequestedApiExists(String userApplicationSecret, String apiShortName, Long userId) {
         return apiSubscribeDAO.findAppliedSubscription(userApplicationSecret, apiShortName, userId).orElseThrow(ErrorSubscribeException::new);
     }

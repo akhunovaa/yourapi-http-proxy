@@ -3,17 +3,12 @@ package ru.yourapi.repository.impl;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.criterion.Subqueries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 import ru.yourapi.entity.ApiSubscriptionDataEntity;
-import ru.yourapi.entity.UserApplicationSecretEntity;
 import ru.yourapi.repository.ApiSubscribeDAO;
 
 import java.util.Optional;
@@ -27,7 +22,6 @@ public class ApiSubscribeDAOImpl implements ApiSubscribeDAO {
     @Autowired
     private SessionFactory sessionFactory;
 
-    @Cacheable(value = "subscription-data", key = "#userApplicationSecret + #apiShortName + #userId")
     @Override
     public Optional<ApiSubscriptionDataEntity> findAppliedSubscription(String userApplicationSecret, String apiShortName, Long userId) {
         ApiSubscriptionDataEntity apiSubscriptionDataEntity;
