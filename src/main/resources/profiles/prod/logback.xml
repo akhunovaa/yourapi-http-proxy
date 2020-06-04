@@ -1,40 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration debug="true">
+<configuration>
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{dd.MM.yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{60} - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <customFields>{"App":"botmasterzzz-yourapi-proxy"}</customFields>
-        </encoder>
-    </appender>
-
-    <appender name="jsonFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- file property left unset/blank for TimeBasedRollingPolicy. текущий файл будет всегда новый -->
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- rollover daily -->
             <fileNamePattern>logs/botmasterzzz-yourapi-api-service/backend.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxHistory>10</maxHistory>
-            <timeBasedFileNamingAndTriggeringPolicy    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <!-- or whenever the file size reaches 50MB -->
-                <maxFileSize>50MB</maxFileSize>
+            <maxHistory>7</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- or whenever the file size reaches 500MB -->
+                <maxFileSize>500MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
         </rollingPolicy>
+
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <customFields>
-                {"App":"botmasterzzz-yourapi-proxy"}
-            </customFields>
+            <charset>UTF-8</charset>
+            <pattern>%d{dd.MM.yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{60} - %msg%n</pattern>
+            <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
+                <customFields>{"App":"botmasterzzz-yourapi-api-proxy"}</customFields>
+                <timestampFormat>yyyy-MM-dd'T'HH:mm:ss.SSSX</timestampFormat>
+                <timestampFormatTimezoneId>Etc/UTC</timestampFormatTimezoneId>
+                <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">
+                    <prettyPrint>true</prettyPrint>
+                </jsonFormatter>
+            </layout>
         </encoder>
     </appender>
 
-    <root level="${log.root.level}">
-        <appender-ref ref="jsonFile"/>
-        <appender-ref ref="console"/>
-        <appender-ref ref="STDOUT"/>
+    <root level="${log.level}">
+        <appender-ref ref="stdout" />
+        <appender-ref ref="file" />
     </root>
 
 </configuration>
