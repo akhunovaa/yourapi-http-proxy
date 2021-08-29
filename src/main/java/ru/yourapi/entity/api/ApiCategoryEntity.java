@@ -26,7 +26,7 @@ public class ApiCategoryEntity implements Serializable {
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
-    @Column(name = "aud_when_create")
+    @Column(name = "aud_when_create", nullable = false, columnDefinition = "timestamp default CURRENT_TIMESTAMP")
     private Timestamp audWhenCreate;
 
     @Column(name = "aud_when_update")
@@ -97,13 +97,11 @@ public class ApiCategoryEntity implements Serializable {
                 Objects.equals(name, that.name) &&
                 Objects.equals(fullName, that.fullName) &&
                 Objects.equals(note, that.note) &&
-                Objects.equals(isDeleted, that.isDeleted) &&
-                audWhenCreate.equals(that.audWhenCreate) &&
-                audWhenUpdate.equals(that.audWhenUpdate);
+                Objects.equals(isDeleted, that.isDeleted);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, fullName, note, isDeleted, audWhenCreate, audWhenUpdate);
+        return Objects.hash(id, name, fullName, note, isDeleted);
     }
 }

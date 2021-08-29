@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -21,6 +22,7 @@ import org.springframework.security.web.header.writers.StaticHeadersWriter;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
+import ru.yourapi.filter.AdditionalLoggingFilter;
 import ru.yourapi.filter.TokenAuthenticationFilter;
 import ru.yourapi.listener.CustomAccessDeniedHandler;
 import ru.yourapi.listener.CustomAuthenticationEntryPoint;
@@ -35,12 +37,16 @@ import ru.yourapi.listener.CustomAuthenticationEntryPoint;
 )
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    private final static String X_YOURAPI_VERSION = "YourAPI-0.1";
+
     @Autowired
     private AccessDeniedHandler accessDeniedHandler;
     @Autowired
     private AuthenticationEntryPoint authenticationEntryPoint;
     @Autowired
     private TokenAuthenticationFilter tokenAuthenticationFilter;
+    @Autowired
+    private AdditionalLoggingFilter additionalLoggingFilter;
 
     @Bean
     public RestOperations restTemplate() {
@@ -76,8 +82,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         //@formatter:off
-        http    .headers()
-                .addHeaderWriter(new StaticHeadersWriter("Server","YourAPI-0.1"))
+        http.headers()
+                .addHeaderWriter(new StaticHeadersWriter("Server", X_YOURAPI_VERSION))
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -91,14 +97,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().accessDeniedHandler(accessDeniedHandler).authenticationEntryPoint(authenticationEntryPoint)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/ping", "/**")
+                .antMatchers(HttpMethod.OPTIONS, "/**")
                 .permitAll()
-                .anyRequest()
-                .authenticated()
+                .antMatchers("/**")
+                .permitAll()
                 .and()
                 .requestCache().requestCache(getHttpSessionRequestCache());
         //@formatter:on
-        http.addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        http.addFilterBefore(additionalLoggingFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(tokenAuthenticationFilter, AdditionalLoggingFilter.class);
     }
 
     private HttpSessionRequestCache getHttpSessionRequestCache() {

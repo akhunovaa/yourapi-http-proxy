@@ -6,4 +6,6 @@ public interface AsyncLoggerService {
 
     void asyncLogOfCustomMessage(String message, String logMessage);
 
+    void asyncLogOfCustomMessage(String message, Object... logMessage);
+
 }

@@ -1,11 +1,14 @@
 package ru.yourapi.entity.api;
 
+import com.google.common.base.Objects;
+
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "api_operation_type")
-public class ApiOperationTypeEntity {
+public class ApiOperationTypeEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +24,7 @@ public class ApiOperationTypeEntity {
     @Column(name = "note")
     private String note;
 
-    @Column(name = "aud_when_create")
+    @Column(name = "aud_when_create", nullable = false, columnDefinition = "timestamp default CURRENT_TIMESTAMP")
     private Timestamp audWhenCreate;
 
     @Column(name = "aud_when_update")
@@ -73,5 +76,21 @@ public class ApiOperationTypeEntity {
 
     public void setAudWhenUpdate(Timestamp audWhenUpdate) {
         this.audWhenUpdate = audWhenUpdate;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ApiOperationTypeEntity that = (ApiOperationTypeEntity) o;
+        return Objects.equal(id, that.id) &&
+                Objects.equal(name, that.name) &&
+                Objects.equal(fullName, that.fullName) &&
+                Objects.equal(note, that.note);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id, name, fullName, note);
     }
 }

@@ -30,6 +30,8 @@
         <postgresql.version>42.2.5</postgresql.version>
         <hibernate.version>5.3.3.Final</hibernate.version>
         <slf4j-log4j12.version>1.7.25</slf4j-log4j12.version>
+        <logback-classic.version>1.2.3</logback-classic.version>
+        <logback.contrib.version>0.1.5</logback.contrib.version>
         <mockito.version>2.23.4</mockito.version>
         <junit.version>4.12</junit.version>
         <javax.version>3.1.0</javax.version>
@@ -50,7 +52,10 @@
         <slf4j.version>1.7.25</slf4j.version>
         <jasyp.version>1.7</jasyp.version>
         <spring-kafka.version>2.3.3.RELEASE</spring-kafka.version>
-        <ehcache.version>2.10.6</ehcache.version>
+        <!--<ehcache.version>2.10.6</ehcache.version>-->
+
+        <spring-data-redis.version>2.2.2.RELEASE</spring-data-redis.version>
+        <jedis.version>3.1.0</jedis.version>
     </properties>
 
     <profiles>
@@ -276,17 +281,36 @@
             <version>${slf4j.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.slf4j</groupId>-->
+            <!--<artifactId>slf4j-simple</artifactId>-->
+            <!--<version>${slf4j.version}</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
             <version>${logstash-logback-encoder.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback-classic.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback.contrib</groupId>
+            <artifactId>logback-jackson</artifactId>
+            <version>${logback.contrib.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback.contrib</groupId>
+            <artifactId>logback-json-classic</artifactId>
+            <version>${logback.contrib.version}</version>
+        </dependency>
+
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -449,16 +473,32 @@
             <version>${jackson.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-            <version>${ehcache.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>net.sf.ehcache</groupId>-->
+            <!--<artifactId>ehcache</artifactId>-->
+            <!--<version>${ehcache.version}</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
             <version>${spring.version}</version>
+        </dependency>
+
+        <!--Spring Data Redis-->
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-redis</artifactId>
+            <version>${spring-data-redis.version}</version>
+        </dependency>
+
+        <!--Jedis is a blazingly small and sane Redis java client-->
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <type>jar</type>
+            <scope>compile</scope>
+            <version>${jedis.version}</version>
         </dependency>
 
     </dependencies>

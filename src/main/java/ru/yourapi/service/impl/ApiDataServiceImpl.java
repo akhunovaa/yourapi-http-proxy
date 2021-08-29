@@ -1,17 +1,18 @@
 package ru.yourapi.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
-import ru.yourapi.dto.ApiDataDto;
-import ru.yourapi.dto.ApiPathDataDto;
-import ru.yourapi.dto.ApiServerDataDto;
-import ru.yourapi.dto.User;
+import ru.yourapi.dto.*;
 import ru.yourapi.entity.api.ApiDataEntity;
+import ru.yourapi.entity.api.ApiOperationEntity;
+import ru.yourapi.entity.api.ApiOperationParameterEntity;
 import ru.yourapi.entity.api.ApiPathDataEntity;
 import ru.yourapi.exception.ApiDataNotFoundException;
 import ru.yourapi.repository.ApiDAO;
 import ru.yourapi.service.ApiDataService;
+import ru.yourapi.util.CustomStringUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,8 +37,16 @@ public class ApiDataServiceImpl implements ApiDataService {
     @Override
     public ApiDataDto getApiData(Long id) {
         ApiDataEntity apiDataEntity = apiDAO.findById(id).orElseThrow(() -> new ApiDataNotFoundException("API doesn't exists"));
-        ApiDataDto apiDataDto = makeApiDataDto(apiDataEntity);
-        return apiDataDto;
+        return makeApiDataDto(apiDataEntity);
+    }
+
+    @Override
+    @Cacheable(value = "api-data", key = "#projectName")
+    public ApiDataDto getApiData(String projectName) {
+        //List<ApiDataEntity> apiDataEntityList = apiDAO.getFullApiList();
+        ApiDataEntity apiDataEntity = apiDAO.findByShortName(projectName).orElseThrow(() -> new ApiDataNotFoundException("API doesn't exists"));
+        //ApiDataEntity apiDataEntity = apiDataEntityList.parallelStream().filter(apiData -> this.streamFilter(apiData, projectName)).findAny().orElseThrow(() -> new ApiDataNotFoundException("API doesn't exists"));
+        return makeApiDataDto(apiDataEntity);
     }
 
     private ApiDataDto makeApiDataDto(ApiDataEntity apiDataEntity) {
@@ -58,22 +67,48 @@ public class ApiDataServiceImpl implements ApiDataService {
         apiDataDto.setDescription(apiDataEntity.getDescription());
         apiDataDto.setCategory(apiDataEntity.getApiCategoryEntity().getName());
 
-        List<ApiPathDataDto> apiPathDataDtoList = new ArrayList<>(apiDataEntity.getApiPathDataEntityList().size());
-        for (ApiPathDataEntity apiPathDataEntity : apiDataEntity.getApiPathDataEntityList()) {
-            ApiPathDataDto apiPathDataDto = new ApiPathDataDto();
-            apiPathDataDto.setId(apiPathDataEntity.getId());
-            apiPathDataDto.setPath(apiPathDataEntity.getValue());
-            apiPathDataDto.setDescription(apiPathDataEntity.getDescription());
-            apiPathDataDto.setSummary(apiPathDataEntity.getSummary());
-            apiPathDataDto.setType(apiPathDataEntity.getApiOperationTypeEntity().getName());
+        List<ApiPathDataDto> apiPathDataDtoList = new ArrayList<>(apiDataEntity.getApiOperationEntities().size());
+        for (ApiOperationEntity apiOperationEntity : apiDataEntity.getApiOperationEntities()) {
+
+            List<ApiPathParamDataDto> apiPathParamDataDtoList = new ArrayList<>(apiOperationEntity.getApiOperationParameterEntityList().size());
+            ApiPathDataEntity apiPathDataEntity = apiOperationEntity.getApiPathDataEntity();
+
+            for (ApiOperationParameterEntity apiOperationParameterEntity : apiOperationEntity.getApiOperationParameterEntityList()) {
+                ApiPathParamDataDto apiPathParamDataDto = ApiPathParamDataDto.newBuilder()
+                        .setId(apiOperationParameterEntity.getId())
+                        .setInput(apiOperationParameterEntity.getInput())
+                        .setName(apiOperationParameterEntity.getName())
+                        .setDescription(apiOperationParameterEntity.getDescription())
+                        .setRequired(null != apiOperationParameterEntity.getRequired())
+                        .setAllowEmptyValued(null != apiOperationParameterEntity.getAllowEmptyValue())
+                        .setExample(apiOperationParameterEntity.getExample())
+                        .build();
+                apiPathParamDataDtoList.add(apiPathParamDataDto);
+            }
+
+            ApiPathDataDto apiPathDataDto = ApiPathDataDto.newBuilder()
+                    .setId(apiPathDataEntity.getId())
+                    .setPath(apiPathDataEntity.getValue())
+                    .setDescription(apiPathDataEntity.getDescription())
+                    .setSummary(apiPathDataEntity.getSummary())
+                    .setType(apiPathDataEntity.getApiOperationTypeEntity().getName())
+                    .setApiPathParamDataList(apiPathParamDataDtoList)
+                    .build();
             apiPathDataDtoList.add(apiPathDataDto);
         }
+
         ApiServerDataDto apiServerDataDto = new ApiServerDataDto();
         apiServerDataDto.setUrl(apiDataEntity.getApiServerDataEntity().getUrl());
         apiServerDataDto.setDescription(apiDataEntity.getApiServerDataEntity().getDescription());
         apiDataDto.setApiServerDataDto(apiServerDataDto);
         apiDataDto.setApiPathDataDtoList(apiPathDataDtoList);
         return apiDataDto;
+    }
+
+    private boolean streamFilter(ApiDataEntity apiDataEntity, String requestedProjectName) {
+        String name = CustomStringUtil.transliterate(apiDataEntity.getName()).trim().replaceAll(" ", "-");
+        name = name.length() > 20 ? name.substring(0, 19) : name;
+        return requestedProjectName.equalsIgnoreCase(name);
     }
 
 }

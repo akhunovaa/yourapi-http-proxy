@@ -13,6 +13,7 @@ pipeline {
         dockerImageTag = "${env.DOCKER_IMAGE_TAG}"
         portForDeploy = get_port()
         portForNodePort = get_node_port()
+        profile4install = get_profile()
         replicaCount = "${env.REPLICA_COUNT}"
     }
 
@@ -29,7 +30,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Clean Build'
-                sh 'mvn clean compile -P dev'
+                sh "mvn clean compile -P $profile4install"
             }
         }
 
@@ -64,7 +65,7 @@ pipeline {
         stage('Package') {
             steps {
                 echo 'Packaging'
-                sh 'mvn clean package -P dev'
+                sh "mvn clean package -P $profile4install"
             }
         }
 
@@ -151,5 +152,19 @@ def get_node_port() {
             return '30047'
         default:
             return '30046'
+    }
+}
+
+def get_profile() {
+    def stend = "${env.UPGRADE_NAMESPACE}"
+    switch (stend) {
+        case 'dev':
+            return 'dev'
+        case 'master':
+            return 'master'
+        case 'prom':
+            return 'prod'
+        default:
+            return 'dev'
     }
 }

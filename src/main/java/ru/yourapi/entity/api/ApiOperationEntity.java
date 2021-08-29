@@ -3,11 +3,13 @@ package ru.yourapi.entity.api;
 import com.google.common.base.Objects;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Set;
 
 @Entity
 @Table(name = "api_operation")
-public class ApiOperationEntity {
+public class ApiOperationEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,11 +28,59 @@ public class ApiOperationEntity {
     @Column(name = "note")
     private String note;
 
-    @Column(name = "aud_when_create")
+    @JoinColumn(name = "api_id")
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
+    private ApiDataEntity apiDataEntity;
+
+    @Column(name = "aud_when_create", nullable = false, columnDefinition = "timestamp default CURRENT_TIMESTAMP")
     private Timestamp audWhenCreate;
 
     @Column(name = "aud_when_update")
     private Timestamp audWhenUpdate;
+
+    @OneToOne(mappedBy = "apiOperationEntity", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
+    private ApiPathDataEntity apiPathDataEntity;
+
+    @OneToMany(mappedBy = "apiOperationEntity", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
+    private Set<ApiOperationParameterEntity> apiOperationParameterEntityList;
+
+    @OneToMany(mappedBy = "apiOperationEntity", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
+    private Set<ApiOperationResponseEntity> apiOperationResponseEntityList;
+
+    @OneToMany(mappedBy = "apiOperationEntity", cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
+    private Set<ApiOperationHeaderEntity> apiOperationHeaderEntityList;
+
+    public void addApiOperationParameter(ApiOperationParameterEntity apiOperationParameterEntity) {
+        apiOperationParameterEntityList.add(apiOperationParameterEntity);
+        apiOperationParameterEntity.setApiOperationEntity(this);
+    }
+
+    public void removeApiOperationParameter(ApiOperationParameterEntity apiOperationParameterEntity) {
+        apiOperationParameterEntityList.remove(apiOperationParameterEntity);
+        apiOperationParameterEntity.setApiOperationEntity(null);
+    }
+
+    public void addApiOperationResponse(ApiOperationResponseEntity apiOperationResponseEntity) {
+        apiOperationResponseEntityList.add(apiOperationResponseEntity);
+        apiOperationResponseEntity.setApiOperationEntity(this);
+    }
+
+    public void removeApiOperationResponse(ApiOperationResponseEntity apiOperationResponseEntity) {
+        apiOperationResponseEntityList.remove(apiOperationResponseEntity);
+        apiOperationResponseEntity.setApiOperationEntity(null);
+    }
+
+
+    public void addApiOperationHeader(ApiOperationHeaderEntity apiOperationHeaderEntity) {
+        apiOperationHeaderEntityList.add(apiOperationHeaderEntity);
+        apiOperationHeaderEntity.setApiOperationEntity(this);
+    }
+
+    public void removeApiOperationHeader(ApiOperationHeaderEntity apiOperationHeaderEntity) {
+        apiOperationHeaderEntityList.remove(apiOperationHeaderEntity);
+        apiOperationHeaderEntity.setApiOperationEntity(null);
+    }
+
 
     public Long getId() {
         return id;
@@ -88,20 +138,57 @@ public class ApiOperationEntity {
         this.audWhenUpdate = audWhenUpdate;
     }
 
+    public Set<ApiOperationParameterEntity> getApiOperationParameterEntityList() {
+        return apiOperationParameterEntityList;
+    }
+
+    public void setApiOperationParameterEntityList(Set<ApiOperationParameterEntity> apiOperationParameterEntityList) {
+        this.apiOperationParameterEntityList = apiOperationParameterEntityList;
+    }
+
+    public Set<ApiOperationResponseEntity> getApiOperationResponseEntityList() {
+        return apiOperationResponseEntityList;
+    }
+
+    public void setApiOperationResponseEntityList(Set<ApiOperationResponseEntity> apiOperationResponseEntityList) {
+        this.apiOperationResponseEntityList = apiOperationResponseEntityList;
+    }
+
+    public Set<ApiOperationHeaderEntity> getApiOperationHeaderEntityList() {
+        return apiOperationHeaderEntityList;
+    }
+
+    public void setApiOperationHeaderEntityList(Set<ApiOperationHeaderEntity> apiOperationHeaderEntityList) {
+        this.apiOperationHeaderEntityList = apiOperationHeaderEntityList;
+    }
+
+    public ApiDataEntity getApiDataEntity() {
+        return apiDataEntity;
+    }
+
+    public void setApiDataEntity(ApiDataEntity apiDataEntity) {
+        this.apiDataEntity = apiDataEntity;
+    }
+
+    public ApiPathDataEntity getApiPathDataEntity() {
+        return apiPathDataEntity;
+    }
+
+    public void setApiPathDataEntity(ApiPathDataEntity apiPathDataEntity) {
+        this.apiPathDataEntity = apiPathDataEntity;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ApiOperationEntity that = (ApiOperationEntity) o;
         return Objects.equal(id, that.id) &&
-                Objects.equal(summary, that.summary) &&
-                Objects.equal(description, that.description) &&
-                Objects.equal(requestBody, that.requestBody) &&
-                Objects.equal(note, that.note);
+                Objects.equal(summary, that.summary);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, summary, description, requestBody, note);
+        return Objects.hashCode(id, summary);
     }
 }

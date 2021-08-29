@@ -3,11 +3,12 @@ package ru.yourapi.entity.api;
 import com.google.common.base.Objects;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "api_path_data")
-public class ApiPathDataEntity {
+public class  ApiPathDataEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,10 +24,6 @@ public class ApiPathDataEntity {
     @Column(name = "description")
     private String description;
 
-    @JoinColumn(name = "api_id")
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private ApiDataEntity apiDataEntity;
-
     @JoinColumn(name = "operation_id")
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private ApiOperationEntity apiOperationEntity;
@@ -35,7 +32,7 @@ public class ApiPathDataEntity {
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     private ApiOperationTypeEntity apiOperationTypeEntity;
 
-    @Column(name = "aud_when_create")
+    @Column(name = "aud_when_create", nullable = false, columnDefinition = "timestamp default CURRENT_TIMESTAMP")
     private Timestamp audWhenCreate;
 
     @Column(name = "aud_when_update")
@@ -73,14 +70,6 @@ public class ApiPathDataEntity {
         this.description = description;
     }
 
-    public ApiDataEntity getApiDataEntity() {
-        return apiDataEntity;
-    }
-
-    public void setApiDataEntity(ApiDataEntity apiDataEntity) {
-        this.apiDataEntity = apiDataEntity;
-    }
-
     public Timestamp getAudWhenCreate() {
         return audWhenCreate;
     }
@@ -96,7 +85,7 @@ public class ApiPathDataEntity {
     public void setAudWhenUpdate(Timestamp audWhenUpdate) {
         this.audWhenUpdate = audWhenUpdate;
     }
-
+//
     public ApiOperationEntity getApiOperationEntity() {
         return apiOperationEntity;
     }
@@ -122,13 +111,11 @@ public class ApiPathDataEntity {
                 Objects.equal(value, that.value) &&
                 Objects.equal(summary, that.summary) &&
                 Objects.equal(description, that.description) &&
-                Objects.equal(apiDataEntity, that.apiDataEntity) &&
-                Objects.equal(apiOperationEntity, that.apiOperationEntity) &&
                 Objects.equal(apiOperationTypeEntity, that.apiOperationTypeEntity);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, value, summary, description, apiDataEntity, apiOperationEntity, apiOperationTypeEntity);
+        return Objects.hashCode(id, value, summary, description, apiOperationTypeEntity);
     }
 }

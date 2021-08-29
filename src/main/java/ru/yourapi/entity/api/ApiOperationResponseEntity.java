@@ -1,13 +1,16 @@
 package ru.yourapi.entity.api;
 
 import com.google.common.base.Objects;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "api_operation_response")
-public class ApiOperationResponseEntity {
+public class ApiOperationResponseEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,7 +33,8 @@ public class ApiOperationResponseEntity {
     private String example;
 
     @JoinColumn(name = "api_operation")
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @Fetch(FetchMode.JOIN)
     private ApiOperationEntity apiOperationEntity;
 
     @Column(name = "schema")
@@ -39,7 +43,7 @@ public class ApiOperationResponseEntity {
     @Column(name = "note")
     private String note;
 
-    @Column(name = "aud_when_create")
+    @Column(name = "aud_when_create", nullable = false, columnDefinition = "timestamp default CURRENT_TIMESTAMP")
     private Timestamp audWhenCreate;
 
     @Column(name = "aud_when_update")
@@ -144,13 +148,12 @@ public class ApiOperationResponseEntity {
                 Objects.equal(contentType, that.contentType) &&
                 Objects.equal(encoding, that.encoding) &&
                 Objects.equal(example, that.example) &&
-                Objects.equal(apiOperationEntity, that.apiOperationEntity) &&
                 Objects.equal(schema, that.schema) &&
                 Objects.equal(note, that.note);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, code, description, contentType, encoding, example, apiOperationEntity, schema, note);
+        return Objects.hashCode(id, code, description, contentType, encoding, example, schema, note);
     }
 }

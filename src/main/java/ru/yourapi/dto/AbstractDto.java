@@ -7,7 +7,7 @@ import java.io.Serializable;
 public abstract class AbstractDto implements Serializable {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Long id;
+    Long id;
 
     public Long getId() {
         return id;
